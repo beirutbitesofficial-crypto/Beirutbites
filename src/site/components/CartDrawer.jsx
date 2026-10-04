@@ -128,19 +128,19 @@ export default function CartDrawer() {
 
   return (
     <>
-      <div className="overlay" hidden={!cartOpen} onClick={closeCart} />
-      <aside className={`drawer${cartOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden={!cartOpen}>
-        <div className="drawer-head">
+      {cartOpen && <div className="panel-scrim" onClick={closeCart} />}
+      <aside className={`cart${cartOpen ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden={!cartOpen}>
+        <div className="cart__head">
           <h2 id="cart-title">{t("cartTitle")}</h2>
-          <button ref={closeRef} className="icon-btn" type="button" aria-label={t("close")} onClick={closeCart}><IconClose /></button>
+          <button ref={closeRef} className="close-btn" type="button" aria-label={t("close")} onClick={closeCart}><IconClose /></button>
         </div>
-        <div className="drawer-body">
+        <div className="cart__body">
           <div className="cart-items">
             {!cart.length && (
               <div className="cart-empty">
-                <IconBag width={48} height={48} strokeWidth={1.5} />
+                <IconBag width={44} height={44} strokeWidth={1} />
                 <p>{t("emptyCart")}</p>
-                <a className="btn btn-ghost btn-sm" href="#menu" onClick={closeCart}>{t("browseMenu")}</a>
+                <a className="btn btn--line btn--sm" href="#menu" onClick={closeCart}>{t("browseMenu")}</a>
               </div>
             )}
             {cart.map((l) => {
@@ -149,14 +149,14 @@ export default function CartDrawer() {
               const key = lineKey(l);
               const details = [l.spice ? t(`spice_${l.spice}`) : "", l.extra ? t("extraShort") : ""].filter(Boolean).join(", ");
               return (
-                <div className="cart-item" key={key}>
+                <div className="line" key={key}>
                   <img src={p.image} alt="" loading="lazy" />
-                  <div className="cart-item-info">
-                    <strong>{loc(p.name)}</strong>
-                    {details && <small>{details}</small>}
-                    <span className="cart-item-price">{kr(unitPrice(l) * l.qty)}</span>
+                  <div>
+                    <span className="line__name">{loc(p.name)}</span>
+                    {details && <small className="line__meta">{details}</small>}
+                    <span className="line__price">{kr(unitPrice(l) * l.qty)}</span>
                   </div>
-                  <div className="stepper">
+                  <div className="qty">
                     <button type="button" aria-label={l.qty === 1 ? t("remove") : t("decreaseQty")} onClick={() => changeQty(key, -1)}>−</button>
                     <span>{l.qty}</span>
                     <button type="button" aria-label={t("increaseQty")} onClick={() => changeQty(key, 1)}>+</button>
@@ -167,7 +167,7 @@ export default function CartDrawer() {
           </div>
 
           {cart.length > 0 && (
-            <form id="checkout-form" className="checkout-form" noValidate onSubmit={checkout}>
+            <form id="checkout-form" className="checkout" noValidate onSubmit={checkout}>
               <div className="totals">
                 {totals.discount > 0 && activeDeal && (
                   <>
@@ -180,7 +180,7 @@ export default function CartDrawer() {
                 )}
                 <div className="grand"><span>{t("totalLabel")}</span><span>{kr(totals.total)}</span></div>
               </div>
-              {closedNote && <p className="closed-note">{closedNote}</p>}
+              {closedNote && <p className="notice">{closedNote}</p>}
               <label className="field">
                 <span>{t("nameLabel")}</span>
                 <input ref={nameRef} id="customer-name" type="text" autoComplete="name" required value={name}
@@ -203,7 +203,7 @@ export default function CartDrawer() {
                 <textarea rows={2} placeholder={t("notePlaceholder")} value={note} onChange={(e) => setNote(e.target.value)} />
               </label>
               {firebaseReady && (
-                <p className="loyalty-status">
+                <p className="loyalty">
                   {user ? t("earnPoints", { points: Math.floor(totals.total) }) : (
                     <>{t(REQUIRE_LOGIN_FOR_CHECKOUT ? "loginRequired" : "loginToCollect")} <button type="button" onClick={openAuth}>{t("loginNow")}</button></>
                   )}
@@ -213,13 +213,13 @@ export default function CartDrawer() {
           )}
         </div>
         {cart.length > 0 && (
-          <div className="drawer-foot">
-            <button id="checkout-whatsapp" className="btn btn-whatsapp btn-lg full" type="submit" form="checkout-form" disabled={!slots.length}>
+          <div className="cart__foot">
+            <button id="checkout-whatsapp" className="btn btn--gold btn--block btn--split" type="submit" form="checkout-form" disabled={!slots.length}>
               <span>{t("checkout")}</span>
               <strong id="checkout-total">{kr(totals.total)}</strong>
             </button>
             {settings.stripePaymentLink && (
-              <button className="btn btn-ghost full" type="button" onClick={() => window.open(settings.stripePaymentLink, "_blank", "noopener")}>{t("payOnline")}</button>
+              <button className="btn btn--line btn--block" type="button" onClick={() => window.open(settings.stripePaymentLink, "_blank", "noopener")}>{t("payOnline")}</button>
             )}
           </div>
         )}

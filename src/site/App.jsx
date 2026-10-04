@@ -9,7 +9,12 @@ import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
 import SpecialBanner from "./components/SpecialBanner.jsx";
 import Menu from "./components/Menu.jsx";
-import About from "./components/About.jsx";
+import Marquee from "./components/Marquee.jsx";
+import Collections from "./components/Collections.jsx";
+import Story from "./components/Story.jsx";
+import Promises from "./components/Promises.jsx";
+import { useReveal } from "./motion/useReveal.js";
+import { useHeroMotion } from "./motion/useHeroMotion.js";
 import Reviews from "./components/Reviews.jsx";
 import Catering from "./components/Catering.jsx";
 import Contact from "./components/Contact.jsx";
@@ -40,6 +45,9 @@ export default function App() {
   const [toast, setToast] = useState({ msg: "", show: false });
   const toastTimer = useRef(null);
   const [bump, setBump] = useState(0);
+  const [activeCat, setActiveCat] = useState("all");
+  useReveal();
+  useHeroMotion();
 
   const t = useCallback((key, vars) => {
     const dict = I18N[lang] || I18N.sv;
@@ -149,18 +157,21 @@ export default function App() {
       <Header />
       <main>
         <Hero />
+        <Marquee onPick={setActiveCat} />
+        <Collections onPick={setActiveCat} />
         <SpecialBanner />
-        <Menu />
-        <About />
+        <Menu active={activeCat} setActive={setActiveCat} />
+        <Story />
         <Reviews />
         <Catering />
         <Contact />
+        <Promises />
       </main>
       <Footer />
 
       {totals.count > 0 && !cartOpen && (
         <button className="cart-bar" type="button" onClick={() => setCartOpen(true)}>
-          <span className="cart-bar-count">{totals.count}</span>
+          <b>{totals.count}</b>
           <span>{t("viewCart")}</span>
           <strong id="cart-bar-total">{kr(totals.total)}</strong>
         </button>
@@ -170,7 +181,7 @@ export default function App() {
       {sheetId && <ProductSheet id={sheetId} onClose={() => setSheetId(null)} />}
       {authOpen && <AuthModal />}
 
-      <div className={`toast${toast.show ? " show" : ""}`} role="status" aria-live="polite">{toast.msg}</div>
+      <div className={`toast${toast.show && !cartOpen ? " show" : ""}`} role="status" aria-live="polite">{toast.msg}</div>
     </SiteContext.Provider>
   );
 }

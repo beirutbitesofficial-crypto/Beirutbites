@@ -23,17 +23,17 @@ export default function ProductSheet({ id, onClose }) {
 
   return (
     <div className="modal">
-      <div className="modal-backdrop" onClick={onClose} />
+      <div className="panel-scrim" onClick={onClose} />
       <div className="sheet" role="dialog" aria-modal="true" aria-labelledby="pm-name">
-        <button ref={closeRef} className="icon-btn sheet-close" type="button" aria-label={t("close")} onClick={onClose}><IconClose /></button>
-        {p.image && <img className="sheet-image" src={p.image} alt="" />}
-        <div className="sheet-body">
+        <button ref={closeRef} className="close-btn sheet__close" type="button" aria-label={t("close")} onClick={onClose}><IconClose /></button>
+        {p.image && <img className="sheet__image" src={p.image} alt="" />}
+        <div className="sheet__body">
           <h2 id="pm-name">{loc(p.name)}</h2>
-          {loc(p.description) && <p className="sheet-desc">{loc(p.description)}</p>}
+          {loc(p.description) && <p className="sheet__desc">{loc(p.description)}</p>}
           {opts.spice && (
-            <fieldset className="opt-group">
+            <fieldset className="opt">
               <legend>{t("spiceLabel")}</legend>
-              <div className="segmented">
+              <div className="seg">
                 {SPICES.map((k) => (
                   <label key={k}>
                     <input type="radio" name="pm-spice" value={k} checked={spice === k} onChange={() => setSpice(k)} />
@@ -44,18 +44,18 @@ export default function ProductSheet({ id, onClose }) {
             </fieldset>
           )}
           {opts.extra && (
-            <label className="check-row">
+            <label className="check">
               <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} />
               <span>{t("extraTopping", { price: extraPrice })}</span>
             </label>
           )}
-          <div className="sheet-foot">
-            <div className="stepper" aria-label={t("quantity")}>
+          <div className="sheet__foot">
+            <div className="qty" aria-label={t("quantity")}>
               <button type="button" aria-label={t("decreaseQty")} onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
               <output>{qty}</output>
               <button type="button" aria-label={t("increaseQty")} onClick={() => setQty((q) => Math.min(50, q + 1))}>+</button>
             </div>
-            <button type="button" id="pm-add" className="btn btn-primary btn-lg grow" onClick={confirm}>
+            <button type="button" id="pm-add" className="btn btn--dark btn--split" onClick={confirm}>
               <span>{t("add")}</span><strong>{kr(unit * qty)}</strong>
             </button>
           </div>

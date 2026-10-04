@@ -1,21 +1,21 @@
 :root {
-  --bg: #08261a;
-  --panel: #0c3320;
-  --surface: #11402a;
-  --surface-2: #175035;
+  --bg: #0a130e;
+  --panel: #101c15;
+  --surface: #18271e;
+  --surface-2: #22362a;
   --line: rgba(245, 239, 223, 0.12);
   --line-strong: rgba(245, 239, 223, 0.22);
-  --text: #f5efdf;
+  --text: #f6f1e6;
   --muted: #b3c3b6;
-  --gold: #f2b632;
-  --gold-ink: #2b1d00;
+  --gold: #d2aa58;
+  --gold-ink: #0a130e;
   --green: #4fd38a;
   --red: #ff8f75;
-  --radius: 16px;
-  --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
-  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 4px;
+  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
-html[lang="ar"] { --font-display: "Cairo", system-ui, sans-serif; --font: "Cairo", system-ui, sans-serif; }
+html[lang="ar"] { --font-display: 'Amiri', serif; --font: 'Noto Sans Arabic', system-ui, sans-serif; }
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body.no-scroll { overflow: hidden; }
@@ -260,3 +260,15 @@ html[dir="rtl"] .switch.big input:checked + .slider::before { transform: transla
 .mobile-only { display: none; }
 button.card { color: inherit; font: inherit; text-align: start; }
 .prow-name { background: none; border: 0; padding: 0; text-align: start; cursor: pointer; }
+
+/* Luxe details shared with the website */
+h1 { font-weight: 400; font-size: 2.4rem; }
+h2 { font-weight: 500; font-size: 1.4rem; }
+.btn { border-radius: 0; letter-spacing: .14em; text-transform: uppercase; font-size: .74rem; font-weight: 500; }
+html[lang="ar"] .btn { letter-spacing: 0; font-size: .9rem; }
+.btn-primary { background: linear-gradient(135deg, #e0b960, #c29a4b); color: #0a130e; }
+.card, .order, .cat-rows, .seg, .seg-btn, .sheet, .toggle-chips button, input, select, textarea, .img-pick, .picker-grid button, .nav-btn, .savebar, .toast { border-radius: 0 !important; }
+.stat { font-weight: 300; font-size: 3.2rem; }
+.status-summary { font-weight: 400; font-size: 1.8rem; }
+.side-brand strong { letter-spacing: .3em; font-weight: 500; }
+.savebar { border-inline-start: 2px solid var(--gold); }

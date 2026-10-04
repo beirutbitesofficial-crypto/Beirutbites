@@ -1,6 +1,8 @@
 # Beirut Bites
 
-Website for **Beirut Bites**, a Lebanese street-food truck in Malmö — built with React + Vite and Firebase.
+Website for **Beirut Bites**, a Lebanese street-food truck in Malmö — built with React + Vite, Firebase and GSAP.
+
+The design is a cinematic "maison" style: cedar noir, ivory and saffron gold, Cormorant Garamond + Jost, an animated hero where the manakish rises into an arch with herbs, embers and steam, curtain reveals on scroll, and a footer signature that fills with gold and lights up like neon. Everything respects "reduce motion".
 
 - **Website** (`index.html`): menu with search and categories, cart, WhatsApp ordering, live "open now" status, catering requests, loyalty points. Swedish, English and Arabic (right-to-left).
 - **Admin panel** (`admin.html`): open/close the truck for the day, mark dishes as sold out, edit prices, dishes and photos, offers, opening hours, and confirm orders so customers get their points.
@@ -44,6 +46,8 @@ Using Firebase Hosting instead? `npm run build && firebase deploy`.
 | Website texts (SV / EN / AR) | [`src/site/i18n.js`](src/site/i18n.js) |
 | Admin panel texts | [`src/admin/i18n.js`](src/admin/i18n.js) |
 | Colours and layout | [`src/site/site.css`](src/site/site.css), [`src/admin/admin.css`](src/admin/admin.css) |
+| Hero animation and scroll effects | [`src/site/motion/`](src/site/motion) |
+| Hero cut-out photos | [`public/images/hero/`](public/images/hero) |
 | Photos | [`public/images/`](public/images) — use `.webp`, about 720 px wide |
 
 **Adding another admin:** add the e-mail to `ADMIN_EMAILS` in `src/config.js` **and** to the list in `isAdmin()` in `firestore.rules`, then publish the rules again.

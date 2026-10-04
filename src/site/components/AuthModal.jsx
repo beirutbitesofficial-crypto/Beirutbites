@@ -117,23 +117,23 @@ export default function AuthModal() {
 
   return (
     <div className="modal">
-      <div className="modal-backdrop" onClick={closeAuth} />
-      <div className="sheet sheet-narrow" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-        <button ref={closeRef} className="icon-btn sheet-close" type="button" aria-label={t("close")} onClick={closeAuth}><IconClose /></button>
-        <div className="sheet-body">
+      <div className="panel-scrim" onClick={closeAuth} />
+      <div className="sheet sheet--narrow" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button ref={closeRef} className="close-btn sheet__close" type="button" aria-label={t("close")} onClick={closeAuth}><IconClose /></button>
+        <div className="sheet__body">
           {!user ? (
             <>
               <h2 id="auth-title">{t("authTitle")}</h2>
               <p className="muted">{t("authIntro")}</p>
-              <div className="tabs" role="tablist">
-                <button type="button" role="tab" className={`tab${tab === "login" ? " active" : ""}`} aria-selected={tab === "login"} onClick={() => { setTab("login"); say(""); }}>{t("authLoginTab")}</button>
-                <button type="button" role="tab" className={`tab${tab === "register" ? " active" : ""}`} aria-selected={tab === "register"} onClick={() => { setTab("register"); say(""); }}>{t("authRegisterTab")}</button>
+              <div className="auth-tabs" role="tablist">
+                <button type="button" role="tab" className={tab === "login" ? "is-active" : ""} aria-selected={tab === "login"} onClick={() => { setTab("login"); say(""); }}>{t("authLoginTab")}</button>
+                <button type="button" role="tab" className={tab === "register" ? "is-active" : ""} aria-selected={tab === "register"} onClick={() => { setTab("register"); say(""); }}>{t("authRegisterTab")}</button>
               </div>
               {tab === "login" ? (
                 <form className="auth-form" onSubmit={login}>
                   <label className="field"><span>{t("authEmail")}</span><input type="email" autoComplete="email" value={form.loginEmail} onChange={set("loginEmail")} required /></label>
                   <label className="field"><span>{t("authPassword")}</span><input type="password" autoComplete="current-password" value={form.loginPassword} onChange={set("loginPassword")} required /></label>
-                  <button type="submit" className="btn btn-primary full">{t("authLoginSubmit")}</button>
+                  <button type="submit" className="btn btn--dark btn--block">{t("authLoginSubmit")}</button>
                   <button type="button" className="link-btn" onClick={reset}>{t("forgotPassword")}</button>
                 </form>
               ) : (
@@ -141,30 +141,30 @@ export default function AuthModal() {
                   <label className="field"><span>{t("authName")}</span><input type="text" autoComplete="name" value={form.name} onChange={set("name")} required /></label>
                   <label className="field"><span>{t("authEmail")}</span><input type="email" autoComplete="email" value={form.email} onChange={set("email")} required /></label>
                   <label className="field"><span>{t("authPassword")}</span><input type="password" autoComplete="new-password" minLength={6} value={form.password} onChange={set("password")} required /><small className="hint">{t("passwordHint")}</small></label>
-                  <button type="submit" className="btn btn-primary full">{t("authRegisterSubmit")}</button>
+                  <button type="submit" className="btn btn--dark btn--block">{t("authRegisterSubmit")}</button>
                 </form>
               )}
               <div className="divider"><span>{t("authOr")}</span></div>
-              <button className="btn btn-light full" type="button" onClick={google}><IconGoogle /><span>{t("authWithGoogle")}</span></button>
-              <details className="more-auth">
+              <button className="google-btn" type="button" onClick={google}><IconGoogle /><span>{t("authWithGoogle")}</span></button>
+              <details className="more">
                 <summary>{t("moreOptions")}</summary>
                 <div className="phone-auth">
                   {phoneStep === "number" ? (
                     <div id="phone-step-number">
                       <label className="field"><span>{t("phoneAuthLabel")}</span><input type="tel" placeholder="+46 7X XXX XX XX" autoComplete="tel" value={form.phone} onChange={set("phone")} /></label>
-                      <button className="btn btn-ghost full" type="button" onClick={sendCode}>{t("phoneSendCode")}</button>
+                      <button className="btn btn--line btn--block" type="button" onClick={sendCode}>{t("phoneSendCode")}</button>
                     </div>
                   ) : (
                     <div id="phone-step-code">
                       <label className="field"><span>{t("phoneCodeLabel")}</span><input type="text" maxLength={6} inputMode="numeric" autoComplete="one-time-code" value={form.code} onChange={set("code")} /></label>
-                      <button className="btn btn-primary full" type="button" onClick={verifyCode}>{t("phoneVerify")}</button>
+                      <button className="btn btn--dark btn--block" type="button" onClick={verifyCode}>{t("phoneVerify")}</button>
                     </div>
                   )}
                   <div id="recaptcha-container" />
                 </div>
                 <div className="email-link-auth">
                   <label className="field"><span>{t("emailLinkLabel")}</span><input type="email" autoComplete="email" value={form.linkEmail} onChange={set("linkEmail")} /></label>
-                  <button className="btn btn-ghost full" type="button" onClick={sendLink}>{t("emailLinkSend")}</button>
+                  <button className="btn btn--line btn--block" type="button" onClick={sendLink}>{t("emailLinkSend")}</button>
                 </div>
               </details>
             </>
@@ -172,30 +172,31 @@ export default function AuthModal() {
             <>
               <h2 id="auth-title">{t("hello", { name: user.name || "" })}</h2>
               <p className="muted">{user.email || user.phone || ""}</p>
-              <div className="points-card">
-                <div className="points-row"><strong>{pts}</strong><span>{t("pointsLabelLong")}</span></div>
-                <div className="bar"><div className="bar-fill" style={{ width: `${Math.min(100, Math.round((pts / REWARD_TARGET) * 100))}%` }} /></div>
-                <p className="muted small">{pts >= REWARD_TARGET ? t("rewardReady") : t("rewardProgressText", { left: REWARD_TARGET - pts })}</p>
-                <button className="btn btn-primary full" type="button" disabled={pts < REWARD_TARGET || pendingReward} onClick={redeem}>{t("rewardRedeemBtn")}</button>
-                {pendingReward && <p className="small">{t("rewardPending")}</p>}
+              <div className="points">
+                <div className="points__row"><strong>{pts}</strong><span>{t("pointsLabelLong")}</span></div>
+                <div className="points__bar"><i style={{ width: `${Math.min(100, Math.round((pts / REWARD_TARGET) * 100))}%` }} /></div>
+                <p>{pts >= REWARD_TARGET ? t("rewardReady") : t("rewardProgressText", { left: REWARD_TARGET - pts })}</p>
+                <button className="btn btn--gold btn--block" type="button" disabled={pts < REWARD_TARGET || pendingReward} onClick={redeem}>{t("rewardRedeemBtn")}</button>
+                {pendingReward && <p>{t("rewardPending")}</p>}
               </div>
-              <h3 className="h-small">{t("orderHistoryTitle")}</h3>
-              <div className="order-history">
+              <div className="history"><h3>{t("orderHistoryTitle")}</h3>
+              <div className="history__list">
                 {!history.length && <p className="empty">{t("noOrdersYet")}</p>}
                 {history.slice(0, 20).map((o, i) => {
                   const status = o.status || "pending";
                   return (
-                    <div className="order-row" key={o._id || i}>
+                    <div className="history__row" key={o._id || i}>
                       <div>
                         <strong>{kr(o.total || 0)}{o.code ? ` · #${o.code}` : ""}</strong>
-                        <span className={`badge ${status}`}>{t(`status_${status}`)}</span>
+                        <span className={`pill ${status}`}>{t(`status_${status}`)}</span>
                       </div>
                       <small>{new Date(tsMillis(o.createdAt)).toLocaleDateString(dateLocale)} — {(o.items || []).map((it) => `${it.qty}× ${it.name}`).join(", ")}</small>
                     </div>
                   );
                 })}
               </div>
-              <button className="btn btn-ghost full" type="button" onClick={() => { signOut(auth); closeAuth(); }}>{t("authLogout")}</button>
+              </div>
+              <button className="btn btn--line btn--block" type="button" onClick={() => { signOut(auth); closeAuth(); }}>{t("authLogout")}</button>
             </>
           )}
           {msg.key && <p className={`form-msg${msg.error ? " error" : ""}`} role="status">{t(msg.key)}</p>}
