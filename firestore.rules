@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin accounts — keep in sync with adminEmails in firebase-config.js
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          'beirut.bites.official@gmail.com'
+        ];
+    }
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Public site settings (menu, prices, hours, specials). Everyone reads, only admins write.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Customer profiles. Customers can never change their own points.
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && request.resource.data.points == 0;
+      allow update: if isAdmin()
+        || (isOwner(uid) && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['points', 'orders', 'redemptions']));
+      allow delete: if isAdmin();
+    }
+
+    // Orders sent from the website. Points are only added when an admin confirms the order.
+    match /orders/{orderId} {
+      allow create: if isOwner(request.resource.data.uid)
+        && request.resource.data.status == 'pending';
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // Reward redemption requests. The admin approves and deducts the points.
+    match /rewards/{rewardId} {
+      allow create: if isOwner(request.resource.data.uid)
+        && request.resource.data.status == 'pending'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.points >= request.resource.data.points;
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
