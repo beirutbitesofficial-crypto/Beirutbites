@@ -144,7 +144,7 @@ html[lang="ar"] .btn { letter-spacing: .02em; font-size: .9rem; }
 .btn--block { display: flex; width: 100%; }
 .btn--sm { min-height: 42px; padding: 0 20px; }
 .btn--split { justify-content: space-between; }
-.btn--split strong { font-weight: 600; letter-spacing: .1em; white-space: nowrap; }
+.btn--split strong { font-weight: 600; letter-spacing: .1em; white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
 
 .chip {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -241,7 +241,7 @@ html[lang="ar"] .account-btn { letter-spacing: 0; font-size: .85rem; }
   transform: translateX(-102%); transition: transform .6s var(--ease-out); overflow-y: auto; visibility: hidden;
 }
 html[dir="rtl"] .nav-drawer { transform: translateX(102%); }
-.nav-drawer.is-open { transform: none; visibility: visible; }
+.nav-drawer.is-open, html[dir="rtl"] .nav-drawer.is-open { transform: none; visibility: visible; }
 .nav-drawer__head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 28px; border-bottom: 1px solid var(--line-light); }
 .nav-drawer__brand { font-family: 'Cormorant Garamond', serif; letter-spacing: .34em; font-size: 1.15rem; }
 .nav-drawer__close { width: 40px; height: 40px; color: var(--gold-2); }
@@ -620,7 +620,7 @@ html[lang="ar"] .cart-bar { letter-spacing: 0; font-size: .9rem; }
   transform: translateX(102%); transition: transform .6s var(--ease-out); visibility: hidden;
 }
 html[dir="rtl"] .cart { transform: translateX(-102%); }
-.cart.is-open { transform: none !important; visibility: visible; }
+.cart.is-open, html[dir="rtl"] .cart.is-open { transform: none; visibility: visible; }
 .cart__head { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px; border-bottom: 1px solid var(--line); }
 .cart__head h2 { font-family: var(--f-display); font-weight: 400; font-size: 1.9rem; line-height: 1; }
 .close-btn { display: grid; place-items: center; width: 40px; height: 40px; color: var(--stone-2); transition: color .3s; }

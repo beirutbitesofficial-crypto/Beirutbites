@@ -42,7 +42,7 @@ export default function Footer() {
         <div className="site-footer__giant" aria-hidden="true" data-giant>Beirut Bites</div>
         <div className="site-footer__bottom">
           <p>© {new Date().getFullYear()} BEIRUT BITES — {t("footerRights")}</p>
-          <p>{t("footerMade")}</p>
+          <p>{t("footerMade")} · <a href="admin.html" rel="nofollow">Admin</a></p>
         </div>
       </div>
     </footer>

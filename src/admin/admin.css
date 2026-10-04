@@ -272,3 +272,25 @@ html[lang="ar"] .btn { letter-spacing: 0; font-size: .9rem; }
 .status-summary { font-weight: 400; font-size: 1.8rem; }
 .side-brand strong { letter-spacing: .3em; font-weight: 500; }
 .savebar { border-inline-start: 2px solid var(--gold); }
+
+/* Phones: the bottom tab bar has a fixed height, so the save bar always sits above it
+   (long Arabic labels used to wrap, make the bar taller and slide under the save bar). */
+@media (max-width: 860px) {
+  .sidebar { height: calc(64px + env(safe-area-inset-bottom)); }
+  .side-nav { height: 56px; }
+  .nav-btn { height: 56px; min-height: 0; overflow: hidden; }
+  .nav-btn > span:not(.count) { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .64rem; }
+  html[lang="ar"] .nav-btn > span:not(.count) { font-size: .7rem; }
+  .savebar { bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 29; }
+  .main { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
+}
+/* Never let a wide row push the page sideways on phones */
+.app { grid-template-columns: 240px minmax(0, 1fr); }
+.main { min-width: 0; }
+input, select, textarea { min-width: 0; max-width: 100%; }
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .hrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .hrow .field { min-width: 0; }
+  body { overflow-x: clip; }
+}

@@ -43,6 +43,7 @@ export default function AdminApp() {
   const [rewards, setRewards] = useState([]);
   const [ordersError, setOrdersError] = useState("");
   const [toast, setToast] = useState({ msg: "", error: false, show: false });
+  const authErrorRef = useRef(() => {});
   const toastTimer = useRef(null);
 
   const t = useCallback((key, vars) => {
@@ -65,8 +66,11 @@ export default function AdminApp() {
   /* Auth gate */
   useEffect(() => {
     if (!firebaseReady) { setGateMsg("noFirebase"); return undefined; }
-    getRedirectResult(auth).catch(() => {});
+    getRedirectResult(auth).catch((e) => authErrorRef.current(e));
+    // Never leave the login screen empty if Firebase is slow to answer.
+    const fallback = setTimeout(() => setGate((g) => (g === "loading" ? "login" : g)), 6000);
     return onAuthStateChanged(auth, (u) => {
+      clearTimeout(fallback);
       if (!u) { setAdminUser(null); setGate("login"); setGateMsg(""); return; }
       if (!ADMINS.includes(String(u.email || "").toLowerCase())) {
         setAdminUser(null); setGate("denied"); setGateMsg(fill(T[lang]?.notAdmin || T.sv.notAdmin, { email: u.email || u.uid }));
@@ -150,21 +154,34 @@ export default function AdminApp() {
   const discard = () => setDraftState(savedJSON ? JSON.parse(savedJSON) : cleanSettings(normalizeSettings(null)));
   const logout = () => { if (dirty && !window.confirm(t("leaveWarning"))) return; signOut(auth); };
 
+  // Turn Firebase error codes into a message that says what to fix.
+  const authError = (e) => {
+    const code = (e && e.code) || "";
+    console.warn("Admin login error:", code, e);
+    if (/unauthorized-domain/.test(code)) return setGateMsg(fill(T[lang]?.errDomain || T.sv.errDomain, { domain: location.hostname }));
+    if (/operation-not-allowed/.test(code)) return setGateMsg("errProvider");
+    if (/network-request-failed/.test(code)) return setGateMsg("errNetwork");
+    if (/invalid-credential|wrong-password|user-not-found|invalid-email/.test(code)) return setGateMsg("loginFailed");
+    return setGateMsg(`${T[lang]?.loginFailed || T.sv.loginFailed} (${code || "unknown"})`);
+  };
   const loginGoogle = () => {
+    setGateMsg("");
     const p = new GoogleAuthProvider();
     p.setCustomParameters({ prompt: "select_account" });
     signInWithPopup(auth, p).catch((e) => {
-      if (/popup-blocked|operation-not-supported/.test(e.code || "")) return signInWithRedirect(auth, p);
-      if (!/popup-closed|cancelled-popup/.test(e.code || "")) setGateMsg("loginFailed");
+      if (/popup-blocked|operation-not-supported/.test(e.code || "")) return signInWithRedirect(auth, p).catch(authError);
+      if (!/popup-closed|cancelled-popup/.test(e.code || "")) authError(e);
       return null;
     });
   };
-  const loginEmail = (email, password) => signInWithEmailAndPassword(auth, email, password).catch(() => setGateMsg("loginFailed"));
+  const loginEmail = (email, password) => { setGateMsg(""); signInWithEmailAndPassword(auth, email, password).catch(authError); };
+  authErrorRef.current = authError;
 
   if (gate !== "ok") {
     return (
       <Gate t={t} lang={lang} setLang={setLang} state={gate}
         message={gateMsg ? (T.sv[gateMsg] ? t(gateMsg) : gateMsg) : ""}
+        email={auth && auth.currentUser ? auth.currentUser.email : ""}
         onGoogle={loginGoogle} onEmail={loginEmail} onLogout={() => signOut(auth)} />
     );
   }
