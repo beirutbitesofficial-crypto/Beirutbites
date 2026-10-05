@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GoogleAuthProvider, onAuthStateChanged, sendEmailVerification, getRedirectResult, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
+import { browserSessionPersistence, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut, updatePassword } from "firebase/auth";
 import { collection, doc, getDoc, limit, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
 import { auth, db, firebaseReady } from "../firebase.js";
-import { ADMIN_EMAILS } from "../config.js";
+import { ADMIN_EMAILS, ADMIN_LOGIN_EMAIL, adminPassword } from "../config.js";
 import { normalizeSettings } from "../data/menu.js";
 import { clone, fill, storage } from "../lib/utils.js";
 import { T } from "./i18n.js";
@@ -19,6 +19,10 @@ import { NAV_ICONS } from "./icons.jsx";
 const VIEWS = ["today", "orders", "menu", "offers", "hours", "settings"];
 const NAV_KEYS = { today: "navToday", orders: "navOrders", menu: "navMenu", offers: "navOffers", hours: "navHours", settings: "navSettings" };
 const ADMINS = ADMIN_EMAILS.map((e) => e.toLowerCase());
+const isAdminUser = (u) => {
+  const email = String((u && u.email) || "").toLowerCase();
+  return email === ADMIN_LOGIN_EMAIL.toLowerCase() || (ADMINS.includes(email) && u.emailVerified);
+};
 
 // Strip old settings.json fields before saving.
 function cleanSettings(s) {
@@ -43,7 +47,8 @@ export default function AdminApp() {
   const [rewards, setRewards] = useState([]);
   const [ordersError, setOrdersError] = useState("");
   const [toast, setToast] = useState({ msg: "", error: false, show: false });
-  const authErrorRef = useRef(() => {});
+  const [attempt, setAttempt] = useState(0);
+  const [busy, setBusy] = useState(false);
   const toastTimer = useRef(null);
 
   const t = useCallback((key, vars) => {
@@ -63,23 +68,17 @@ export default function AdminApp() {
     toastTimer.current = setTimeout(() => setToast((x) => ({ ...x, show: false })), error ? 6000 : 2600);
   }, []);
 
-  /* Auth gate */
+  /* PIN lock */
   useEffect(() => {
     if (!firebaseReady) { setGateMsg("noFirebase"); return undefined; }
-    getRedirectResult(auth).catch((e) => authErrorRef.current(e));
-    // Never leave the login screen empty if Firebase is slow to answer.
     const fallback = setTimeout(() => setGate((g) => (g === "loading" ? "login" : g)), 6000);
     return onAuthStateChanged(auth, (u) => {
       clearTimeout(fallback);
-      if (!u) { setAdminUser(null); setGate("login"); setGateMsg(""); return; }
-      if (!ADMINS.includes(String(u.email || "").toLowerCase())) {
-        setAdminUser(null); setGate("denied"); setGateMsg(fill(T[lang]?.notAdmin || T.sv.notAdmin, { email: u.email || u.uid }));
-        return;
-      }
-      if (!u.emailVerified) { setAdminUser(null); setGate("verify"); setGateMsg(""); return; }
+      // Someone else (e.g. a customer account on this phone) is signed in → just ask for the PIN.
+      if (!u || !isAdminUser(u)) { setAdminUser(null); setGate("login"); return; }
       setAdminUser(u); setGate("ok"); setGateMsg("");
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   /* Load settings once logged in */
   useEffect(() => {
@@ -155,45 +154,32 @@ export default function AdminApp() {
   const discard = () => setDraftState(savedJSON ? JSON.parse(savedJSON) : cleanSettings(normalizeSettings(null)));
   const logout = () => { if (dirty && !window.confirm(t("leaveWarning"))) return; signOut(auth); };
 
-  // Turn Firebase error codes into a message that says what to fix.
-  const authError = (e) => {
-    const code = (e && e.code) || "";
-    console.warn("Admin login error:", code, e);
-    if (/unauthorized-domain/.test(code)) return setGateMsg(fill(T[lang]?.errDomain || T.sv.errDomain, { domain: location.hostname }));
-    if (/operation-not-allowed/.test(code)) return setGateMsg("errProvider");
-    if (/network-request-failed/.test(code)) return setGateMsg("errNetwork");
-    if (/invalid-credential|wrong-password|user-not-found|invalid-email/.test(code)) return setGateMsg("loginFailed");
-    return setGateMsg(`${T[lang]?.loginFailed || T.sv.loginFailed} (${code || "unknown"})`);
-  };
-  const loginGoogle = () => {
+  // The PIN signs in to the admin account; the session ends when the browser tab is closed.
+  const enterPin = async (pin) => {
+    setBusy(true);
     setGateMsg("");
-    const p = new GoogleAuthProvider();
-    p.setCustomParameters({ prompt: "select_account" });
-    signInWithPopup(auth, p).catch((e) => {
-      if (/popup-blocked|operation-not-supported/.test(e.code || "")) return signInWithRedirect(auth, p).catch(authError);
-      if (!/popup-closed|cancelled-popup/.test(e.code || "")) authError(e);
-      return null;
-    });
+    try {
+      await setPersistence(auth, browserSessionPersistence);
+      await signInWithEmailAndPassword(auth, ADMIN_LOGIN_EMAIL, adminPassword(pin));
+    } catch (e) {
+      const code = (e && e.code) || "";
+      console.warn("PIN login:", code);
+      setGateMsg(/too-many-requests/.test(code) ? "pinTooMany" : /network-request-failed/.test(code) ? "errNetwork" : "pinWrong");
+      setAttempt((a) => a + 1);
+    }
+    setBusy(false);
   };
-  const loginEmail = (email, password) => { setGateMsg(""); signInWithEmailAndPassword(auth, email, password).catch(authError); };
-  authErrorRef.current = authError;
-  const sendVerify = () => sendEmailVerification(auth.currentUser).then(() => setGateMsg("verifySent")).catch(authError);
-  const checkVerified = () => auth.currentUser.reload().then(() => {
-    if (auth.currentUser.emailVerified) { setAdminUser(auth.currentUser); setGate("ok"); setGateMsg(""); }
-    else setGateMsg("verifyNotYet");
-  });
+  const changePin = (pin) => updatePassword(auth.currentUser, adminPassword(pin));
 
   if (gate !== "ok") {
     return (
-      <Gate t={t} lang={lang} setLang={setLang} state={gate}
+      <Gate t={t} lang={lang} setLang={setLang} state={gate} busy={busy} attempt={attempt}
         message={gateMsg ? (T.sv[gateMsg] ? t(gateMsg) : gateMsg) : ""}
-        email={auth && auth.currentUser ? auth.currentUser.email : ""}
-        onVerify={sendVerify} onVerified={checkVerified}
-        onGoogle={loginGoogle} onEmail={loginEmail} onLogout={() => signOut(auth)} />
+        onPin={enterPin} />
     );
   }
 
-  const ctx = { t, lang, setLang, draft, update, replaceDraft, savedJSON, orders, rewards, ordersError, showToast, go, adminUser, logout, pendingCount };
+  const ctx = { t, lang, setLang, draft, update, replaceDraft, savedJSON, orders, rewards, ordersError, showToast, go, adminUser, logout, pendingCount, changePin };
   const ViewComp = { today: Today, orders: Orders, menu: MenuView, offers: Offers, hours: Hours, settings: Settings }[view];
 
   return (
@@ -224,8 +210,7 @@ export default function AdminApp() {
               <option value="ar">العربية</option>
             </select>
             <a href="./" target="_blank" rel="noopener noreferrer" className="side-link">{t("openSite")}</a>
-            <small className="muted" id="who">{adminUser && adminUser.email}</small>
-            <button className="side-link" type="button" onClick={logout}>{t("logout")}</button>
+            <button className="side-link" type="button" onClick={logout}>{t("lock")}</button>
           </div>
         </aside>
 

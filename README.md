@@ -33,8 +33,15 @@ Using Firebase Hosting instead? `npm run build && firebase deploy`.
 ## Firebase setup (one time)
 
 1. **Publish the database rules** — Firebase console → project `beirut-bites-fa6a0` → **Firestore Database → Rules** → paste the contents of [`firestore.rules`](firestore.rules) → **Publish**. Without this, the admin panel can't save and orders/points won't work.
-2. **Sign-in methods** — **Authentication → Sign-in method**: enable **Google** and **Email/Password**. Under **Settings → Authorized domains**, add `beirutbites.shop` (and `www.beirutbites.shop`).
-3. **First admin login** — open `/admin.html`, log in with Google as `beirut.bites.official@gmail.com`, and press **Spara och publicera** once to publish the menu.
+2. **Sign-in methods** — **Authentication → Sign-in method**: enable **Email/Password** (and **Google** if customers should be able to use it). Under **Settings → Authorized domains**, add `beirutbites.shop` (and `www.beirutbites.shop`).
+3. **Create the admin PIN** (once) — **Authentication → Users → Add user**:
+   - Email: `admin@beirutbites.shop`
+   - Password: `bb-` followed by your 4-digit PIN, e.g. `bb-1234` for PIN 1234
+
+   Do this right away: until the account exists, someone else could create it.
+4. **First admin login** — open `/admin.html`, type the PIN, and press **Spara och publicera** once to publish the menu.
+
+The PIN can be changed later in the admin panel under **Inställningar → Byt PIN-kod**. The panel locks again when the browser tab is closed.
 
 ## Where to change things
 
@@ -50,7 +57,7 @@ Using Firebase Hosting instead? `npm run build && firebase deploy`.
 | Hero cut-out photos | [`public/images/hero/`](public/images/hero) |
 | Photos | [`public/images/`](public/images) — use `.webp`, about 720 px wide |
 
-**Adding another admin:** add the e-mail to `ADMIN_EMAILS` in `src/config.js` **and** to the list in `isAdmin()` in `firestore.rules`, then publish the rules again.
+**Admin login:** everyone who runs the truck uses the same 4-digit PIN. The PIN account is set in `src/config.js` (`ADMIN_LOGIN_EMAIL`) and in `isAdmin()` in `firestore.rules`; if you change one, change the other and publish the rules again.
 
 ## How orders and points work
 

@@ -294,3 +294,19 @@ input, select, textarea { min-width: 0; max-width: 100%; }
   .hrow .field { min-width: 0; }
   body { overflow-x: clip; }
 }
+
+/* PIN lock screen */
+.pin-dots { display: flex; justify-content: center; gap: 18px; margin: 10px 0 6px; }
+.pin-dots span { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--gold); transition: background .15s, transform .15s; }
+.pin-dots span.on { background: var(--gold); transform: scale(1.1); }
+.pin-dots.shake { animation: shake .45s; }
+@keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; justify-content: center; margin: 8px auto; }
+.pin-key {
+  height: 76px; border-radius: 50% !important; border: 1px solid var(--line-strong); background: transparent;
+  font-family: var(--font-display); font-size: 1.9rem; color: var(--text); transition: background .15s, border-color .15s;
+}
+.pin-key:hover:not(:disabled) { border-color: var(--gold); }
+.pin-key:active:not(:disabled) { background: rgba(210, 170, 88, .18); }
+.pin-key:disabled { opacity: .4; }
+.pin-key--del { border-color: transparent; font-family: var(--font); font-size: 1.4rem; color: var(--muted); }

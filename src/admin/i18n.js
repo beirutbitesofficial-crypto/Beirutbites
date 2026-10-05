@@ -143,7 +143,20 @@ export const T = {
     "verifySend": "Skicka bekräftelselänk",
     "verifyDone": "Jag har bekräftat",
     "verifySent": "Länken är skickad. Kolla din inkorg (och skräpposten).",
-    "verifyNotYet": "E-posten är inte bekräftad än. Öppna länken i mejlet först."
+    "verifyNotYet": "E-posten är inte bekräftad än. Öppna länken i mejlet först.",
+    "pinText": "Skriv din PIN-kod",
+    "pinDelete": "Radera",
+    "pinWrong": "Fel PIN-kod. Försök igen.",
+    "pinTooMany": "För många försök. Vänta några minuter och försök igen.",
+    "lock": "Lås",
+    "changePin": "Byt PIN-kod",
+    "changePinHint": "Fyra siffror. Den nya koden gäller direkt på alla enheter.",
+    "newPin": "Ny PIN-kod",
+    "repeatPin": "Upprepa PIN-kod",
+    "pinChanged": "PIN-koden är bytt.",
+    "pinMismatch": "Koderna är inte lika.",
+    "pinFormat": "PIN-koden ska vara fyra siffror.",
+    "pinRelogin": "Lås panelen, skriv in PIN-koden igen och försök sedan byta."
   },
   "en": {
     "gateTitle": "Admin panel",
@@ -288,7 +301,20 @@ export const T = {
     "verifySend": "Send confirmation link",
     "verifyDone": "I've confirmed it",
     "verifySent": "Link sent. Check your inbox (and spam).",
-    "verifyNotYet": "The email isn't confirmed yet. Open the link in the email first."
+    "verifyNotYet": "The email isn't confirmed yet. Open the link in the email first.",
+    "pinText": "Enter your PIN",
+    "pinDelete": "Delete",
+    "pinWrong": "Wrong PIN. Try again.",
+    "pinTooMany": "Too many attempts. Wait a few minutes and try again.",
+    "lock": "Lock",
+    "changePin": "Change PIN",
+    "changePinHint": "Four digits. The new PIN works right away on every device.",
+    "newPin": "New PIN",
+    "repeatPin": "Repeat PIN",
+    "pinChanged": "PIN changed.",
+    "pinMismatch": "The PINs don't match.",
+    "pinFormat": "The PIN must be four digits.",
+    "pinRelogin": "Lock the panel, enter the PIN again, then try changing it."
   },
   "ar": {
     "gateTitle": "لوحة الإدارة",
@@ -433,6 +459,19 @@ export const T = {
     "verifySend": "ابعت رابط التأكيد",
     "verifyDone": "أكّدت",
     "verifySent": "انبعت الرابط. شوف بريدك (والـ spam).",
-    "verifyNotYet": "البريد ما تأكّد بعد. افتح الرابط بالإيميل أول."
+    "verifyNotYet": "البريد ما تأكّد بعد. افتح الرابط بالإيميل أول.",
+    "pinText": "اكتب الرمز السري",
+    "pinDelete": "امسح",
+    "pinWrong": "الرمز غلط. جرّب مرة تانية.",
+    "pinTooMany": "محاولات كتير. استنى كم دقيقة وجرّب.",
+    "lock": "قفل",
+    "changePin": "غيّر الرمز",
+    "changePinHint": "أربع أرقام. الرمز الجديد بيشتغل فوراً على كل الأجهزة.",
+    "newPin": "الرمز الجديد",
+    "repeatPin": "عيد الرمز",
+    "pinChanged": "تغيّر الرمز.",
+    "pinMismatch": "الرمزين مش متل بعض.",
+    "pinFormat": "الرمز لازم يكون أربع أرقام.",
+    "pinRelogin": "اقفل اللوحة، فوت بالرمز مرة تانية، وبعدين غيّره."
   }
 };

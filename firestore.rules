@@ -2,16 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Admin accounts — keep in sync with ADMIN_EMAILS in src/config.js.
-    // The e-mail must be verified, otherwise anyone could create a password account
-    // using the admin's address and get into the admin panel.
+    // Admin = the PIN account used by the admin panel (admin@beirutbites.shop, created once
+    // in Firebase Console), or a verified backup e-mail. Keep in sync with src/config.js.
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in [
-          'beirut.bites.official@gmail.com'
-        ];
+        && (
+          request.auth.token.email.lower() == 'admin@beirutbites.shop'
+          || (request.auth.token.email_verified == true
+              && request.auth.token.email.lower() in ['beirut.bites.official@gmail.com'])
+        );
     }
     function signedIn() { return request.auth != null; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }

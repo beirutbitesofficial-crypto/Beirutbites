@@ -1,42 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const LANGS = [["sv", "Svenska"], ["en", "English"], ["ar", "العربية"]];
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"];
 
-export default function Gate({ t, lang, setLang, state, message, email: signedIn, onGoogle, onEmail, onLogout, onVerify, onVerified }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+// Admin lock screen: a 4-digit PIN pad (works with taps or the keyboard).
+export default function Gate({ t, lang, setLang, state, message, attempt, busy, onPin }) {
+  const [pin, setPin] = useState("");
+  const [shake, setShake] = useState(false);
+
+  useEffect(() => {
+    if (!message) return undefined;
+    setPin("");
+    setShake(true);
+    const id = setTimeout(() => setShake(false), 500);
+    return () => clearTimeout(id);
+  }, [message, attempt]);
+
+  const press = (k) => {
+    if (busy || state !== "login") return;
+    if (k === "del") { setPin((p) => p.slice(0, -1)); return; }
+    if (!/^\d$/.test(k)) return;
+    setPin((p) => {
+      const next = (p + k).slice(0, 4);
+      if (next.length === 4) setTimeout(() => onPin(next), 120);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (/^\d$/.test(e.key)) press(e.key);
+      else if (e.key === "Backspace") press("del");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   return (
     <div className="gate">
       <div className="gate-card">
         <img src="images/logo.webp" alt="" width="64" height="64" />
         <h1>{t("gateTitle")}</h1>
-        <p className="muted">{t("gateText")}</p>
-        {state === "login" && (
-          <div>
-            <button className="btn btn-light full" type="button" onClick={onGoogle}>
-              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" /><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" /><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" /><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" /></svg>
-              <span>{t("googleLogin")}</span>
-            </button>
-            <div className="divider"><span>{t("or")}</span></div>
-            <form className="stack" onSubmit={(e) => { e.preventDefault(); onEmail(email.trim(), password); }}>
-              <label className="field"><span>{t("email")}</span><input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-              <label className="field"><span>{t("password")}</span><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
-              <button className="btn btn-primary full" type="submit">{t("login")}</button>
-            </form>
-          </div>
-        )}
-        {state === "loading" && <p className="muted">{t("loadingSettings")}</p>}
-        {state === "denied" && signedIn && <p className="muted small">{signedIn}</p>}
-        {state === "verify" && (
-          <div className="stack">
-            <p>{t("verifyText", { email: signedIn })}</p>
-            <button className="btn btn-primary full" type="button" onClick={onVerify}>{t("verifySend")}</button>
-            <button className="btn btn-ghost full" type="button" onClick={onVerified}>{t("verifyDone")}</button>
-            <button className="btn btn-ghost full" type="button" onClick={onLogout}>{t("logout")}</button>
-          </div>
-        )}
-        {state === "denied" && <button className="btn btn-ghost full" type="button" onClick={onLogout}>{t("logout")}</button>}
+        <p className="muted">{state === "loading" ? t("loadingSettings") : t("pinText")}</p>
+
+        <div className={`pin-dots${shake ? " shake" : ""}`} aria-label={t("pinText")} role="status">
+          {[0, 1, 2, 3].map((i) => <span key={i} className={i < pin.length ? "on" : ""} />)}
+        </div>
+
+        <div className="pin-pad" dir="ltr">
+          {KEYS.map((k, i) => (
+            k === "" ? <span key={i} /> : (
+              <button key={i} type="button" className={k === "del" ? "pin-key pin-key--del" : "pin-key"} disabled={busy || state !== "login"}
+                aria-label={k === "del" ? t("pinDelete") : k} onClick={() => press(k)}>
+                {k === "del" ? "⌫" : k}
+              </button>
+            )
+          ))}
+        </div>
+
         {message && <p className="msg error" role="alert">{message}</p>}
+
         <div className="gate-langs" role="group" aria-label="Language">
           {LANGS.map(([code, label]) => (
             <button key={code} type="button" className={lang === code ? "active" : ""} onClick={() => setLang(code)}>{label}</button>
