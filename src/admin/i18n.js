@@ -138,7 +138,12 @@ export const T = {
     "firstRun": "Inga sparade inställningar hittades i Firebase. Standardmenyn visas — tryck Spara för att publicera den.",
     "errDomain": "Google-inloggning är inte tillåten på {domain} ännu. Öppna Firebase Console → Authentication → Settings → Authorized domains och lägg till {domain}.",
     "errProvider": "Inloggningsmetoden är avstängd. Slå på Google och E-post/lösenord i Firebase Console → Authentication → Sign-in method.",
-    "errNetwork": "Ingen kontakt med Firebase. Kontrollera internetanslutningen och försök igen."
+    "errNetwork": "Ingen kontakt med Firebase. Kontrollera internetanslutningen och försök igen.",
+    "verifyText": "Bekräfta först att {email} är din e-post. Vi skickar en länk — öppna den och tryck sedan på knappen nedan.",
+    "verifySend": "Skicka bekräftelselänk",
+    "verifyDone": "Jag har bekräftat",
+    "verifySent": "Länken är skickad. Kolla din inkorg (och skräpposten).",
+    "verifyNotYet": "E-posten är inte bekräftad än. Öppna länken i mejlet först."
   },
   "en": {
     "gateTitle": "Admin panel",
@@ -278,7 +283,12 @@ export const T = {
     "firstRun": "No saved settings found in Firebase. The default menu is shown — tap Save to publish it.",
     "errDomain": "Google sign-in isn't allowed on {domain} yet. Open Firebase Console → Authentication → Settings → Authorized domains and add {domain}.",
     "errProvider": "This sign-in method is turned off. Turn on Google and Email/Password in Firebase Console → Authentication → Sign-in method.",
-    "errNetwork": "Can't reach Firebase. Check the internet connection and try again."
+    "errNetwork": "Can't reach Firebase. Check the internet connection and try again.",
+    "verifyText": "First confirm that {email} is your email. We'll send a link — open it, then tap the button below.",
+    "verifySend": "Send confirmation link",
+    "verifyDone": "I've confirmed it",
+    "verifySent": "Link sent. Check your inbox (and spam).",
+    "verifyNotYet": "The email isn't confirmed yet. Open the link in the email first."
   },
   "ar": {
     "gateTitle": "لوحة الإدارة",
@@ -418,6 +428,11 @@ export const T = {
     "firstRun": "ما في إعدادات محفوظة بـ Firebase. عم نعرض المنيو الأصلي — اضغط حفظ لتنشره.",
     "errDomain": "تسجيل الدخول بجوجل مش مسموح على {domain} بعد. افتح Firebase Console ← Authentication ← Settings ← Authorized domains وزيد {domain}.",
     "errProvider": "طريقة الدخول مسكّرة. شغّل Google و Email/Password من Firebase Console ← Authentication ← Sign-in method.",
-    "errNetwork": "ما في اتصال بـ Firebase. تأكد من الإنترنت وجرّب مرة تانية."
+    "errNetwork": "ما في اتصال بـ Firebase. تأكد من الإنترنت وجرّب مرة تانية.",
+    "verifyText": "أكّد أول إنو {email} هو بريدك. منبعتلك رابط — افتحه وبعدين اضغط الزر تحت.",
+    "verifySend": "ابعت رابط التأكيد",
+    "verifyDone": "أكّدت",
+    "verifySent": "انبعت الرابط. شوف بريدك (والـ spam).",
+    "verifyNotYet": "البريد ما تأكّد بعد. افتح الرابط بالإيميل أول."
   }
 };

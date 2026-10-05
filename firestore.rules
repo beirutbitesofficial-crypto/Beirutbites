@@ -2,10 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Admin accounts — keep in sync with adminEmails in firebase-config.js
+    // Admin accounts — keep in sync with ADMIN_EMAILS in src/config.js.
+    // The e-mail must be verified, otherwise anyone could create a password account
+    // using the admin's address and get into the admin panel.
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email.lower() in [
           'beirut.bites.official@gmail.com'
         ];

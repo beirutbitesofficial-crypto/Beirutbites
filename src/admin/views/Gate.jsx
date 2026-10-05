@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const LANGS = [["sv", "Svenska"], ["en", "English"], ["ar", "العربية"]];
 
-export default function Gate({ t, lang, setLang, state, message, email: signedIn, onGoogle, onEmail, onLogout }) {
+export default function Gate({ t, lang, setLang, state, message, email: signedIn, onGoogle, onEmail, onLogout, onVerify, onVerified }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
@@ -27,6 +27,14 @@ export default function Gate({ t, lang, setLang, state, message, email: signedIn
         )}
         {state === "loading" && <p className="muted">{t("loadingSettings")}</p>}
         {state === "denied" && signedIn && <p className="muted small">{signedIn}</p>}
+        {state === "verify" && (
+          <div className="stack">
+            <p>{t("verifyText", { email: signedIn })}</p>
+            <button className="btn btn-primary full" type="button" onClick={onVerify}>{t("verifySend")}</button>
+            <button className="btn btn-ghost full" type="button" onClick={onVerified}>{t("verifyDone")}</button>
+            <button className="btn btn-ghost full" type="button" onClick={onLogout}>{t("logout")}</button>
+          </div>
+        )}
         {state === "denied" && <button className="btn btn-ghost full" type="button" onClick={onLogout}>{t("logout")}</button>}
         {message && <p className="msg error" role="alert">{message}</p>}
         <div className="gate-langs" role="group" aria-label="Language">

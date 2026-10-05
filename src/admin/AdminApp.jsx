@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GoogleAuthProvider, onAuthStateChanged, getRedirectResult, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged, sendEmailVerification, getRedirectResult, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
 import { collection, doc, getDoc, limit, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
 import { auth, db, firebaseReady } from "../firebase.js";
 import { ADMIN_EMAILS } from "../config.js";
@@ -76,6 +76,7 @@ export default function AdminApp() {
         setAdminUser(null); setGate("denied"); setGateMsg(fill(T[lang]?.notAdmin || T.sv.notAdmin, { email: u.email || u.uid }));
         return;
       }
+      if (!u.emailVerified) { setAdminUser(null); setGate("verify"); setGateMsg(""); return; }
       setAdminUser(u); setGate("ok"); setGateMsg("");
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -176,12 +177,18 @@ export default function AdminApp() {
   };
   const loginEmail = (email, password) => { setGateMsg(""); signInWithEmailAndPassword(auth, email, password).catch(authError); };
   authErrorRef.current = authError;
+  const sendVerify = () => sendEmailVerification(auth.currentUser).then(() => setGateMsg("verifySent")).catch(authError);
+  const checkVerified = () => auth.currentUser.reload().then(() => {
+    if (auth.currentUser.emailVerified) { setAdminUser(auth.currentUser); setGate("ok"); setGateMsg(""); }
+    else setGateMsg("verifyNotYet");
+  });
 
   if (gate !== "ok") {
     return (
       <Gate t={t} lang={lang} setLang={setLang} state={gate}
         message={gateMsg ? (T.sv[gateMsg] ? t(gateMsg) : gateMsg) : ""}
         email={auth && auth.currentUser ? auth.currentUser.email : ""}
+        onVerify={sendVerify} onVerified={checkVerified}
         onGoogle={loginGoogle} onEmail={loginEmail} onLogout={() => signOut(auth)} />
     );
   }
