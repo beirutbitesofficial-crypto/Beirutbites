@@ -21,6 +21,8 @@ import Contact from "./components/Contact.jsx";
 import Footer from "./components/Footer.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
 import ProductSheet from "./components/ProductSheet.jsx";
+import OvenBuilder from "./components/OvenBuilder.jsx";
+import { builderKind } from "./builder.js";
 import AuthModal from "./components/AuthModal.jsx";
 
 function detectLanguage() {
@@ -42,6 +44,7 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [sheetId, setSheetId] = useState(null);
+  const [builderId, setBuilderId] = useState(null);
   const [toast, setToast] = useState({ msg: "", show: false });
   const toastTimer = useRef(null);
   const [bump, setBump] = useState(0);
@@ -68,20 +71,21 @@ export default function App() {
   }, [lang, t]);
 
   useEffect(() => {
-    const lock = cartOpen || authOpen || sheetId;
+    const lock = cartOpen || authOpen || sheetId || builderId;
     document.body.classList.toggle("no-scroll", Boolean(lock));
-  }, [cartOpen, authOpen, sheetId]);
+  }, [cartOpen, authOpen, sheetId, builderId]);
 
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (sheetId) setSheetId(null);
+      if (builderId) setBuilderId(null);
+      else if (sheetId) setSheetId(null);
       else if (authOpen) setAuthOpen(false);
       else if (cartOpen) setCartOpen(false);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [sheetId, authOpen, cartOpen]);
+  }, [builderId, sheetId, authOpen, cartOpen]);
 
   const showToast = useCallback((msg) => {
     setToast({ msg, show: true });
@@ -110,7 +114,7 @@ export default function App() {
 
   const unitPrice = useCallback((l) => {
     const p = findProduct(l.id);
-    return p ? Number(p.price) + (l.extra ? extraPrice : 0) : 0;
+    return p ? Number(p.price) + ((l.extra ? 1 : 0) + (l.toppings ? l.toppings.length : 0)) * extraPrice : 0;
   }, [findProduct, extraPrice]);
 
   const totals = useMemo(() => {
@@ -136,6 +140,7 @@ export default function App() {
   const openProduct = useCallback((id) => {
     const p = findProduct(id);
     if (!p || p.soldOut) return;
+    if (builderKind(p)) { setBuilderId(id); return; }
     const o = productOptions(p);
     if (!o.spice && !o.extra) addToCart(id, {});
     else setSheetId(id);
@@ -145,7 +150,7 @@ export default function App() {
     lang, setLang, t, loc, settings, products, tick, kr,
     customer, firebaseReady,
     cart: cartApi.cart, lineKey: cartApi.lineKey, changeQty: cartApi.change, clearCart: cartApi.clear,
-    totals, activeDeal, unitPrice, extraPrice, findProduct, productOptions,
+    totals, activeDeal, unitPrice, extraPrice, findProduct, findCategory, productOptions,
     addToCart, openProduct, showToast, bump,
     openCart: () => setCartOpen(true), closeCart: () => setCartOpen(false), cartOpen,
     openAuth: () => { if (firebaseReady) setAuthOpen(true); }, closeAuth: () => setAuthOpen(false)
@@ -179,6 +184,7 @@ export default function App() {
 
       <CartDrawer />
       {sheetId && <ProductSheet id={sheetId} onClose={() => setSheetId(null)} />}
+      {builderId && <OvenBuilder id={builderId} onClose={() => setBuilderId(null)} />}
       {authOpen && <AuthModal />}
 
       <div className={`toast${toast.show && !cartOpen ? " show" : ""}`} role="status" aria-live="polite">{toast.msg}</div>

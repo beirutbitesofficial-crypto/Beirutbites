@@ -135,9 +135,10 @@ export function useCart(products) {
     });
   }, [products]);
 
-  const lineKey = (l) => `${l.id}|${l.spice || ""}|${l.extra ? 1 : 0}`;
+  const lineKey = (l) => `${l.id}|${l.spice || ""}|${l.extra ? 1 : 0}|${(l.toppings || []).slice().sort().join(",")}`;
   const add = useCallback((id, opts = {}, qty = 1) => {
     const line = { id, qty, spice: opts.spice || "", extra: Boolean(opts.extra) };
+    if (opts.toppings && opts.toppings.length) line.toppings = opts.toppings.slice().sort();
     setCart((c) => {
       const i = c.findIndex((l) => lineKey(l) === lineKey(line));
       if (i === -1) return [...c, line];

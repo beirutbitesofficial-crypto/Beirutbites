@@ -109,7 +109,7 @@ export default function Orders() {
               </div>
               <ul>
                 {(o.items || []).map((i, idx) => {
-                  const extra = [i.spice ? t(`spice_${i.spice}`) : "", i.extra ? t("extraShort") : ""].filter(Boolean);
+                  const extra = [i.spice ? t(`spice_${i.spice}`) : "", i.extra ? t("extraShort") : "", i.toppings && i.toppings.length ? `+ ${i.toppings.join(", ")}` : ""].filter(Boolean);
                   return <li key={idx}>{i.qty}× {i.name}{extra.length > 0 && <span className="muted"> ({extra.join(", ")})</span>}</li>;
                 })}
               </ul>

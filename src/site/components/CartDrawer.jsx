@@ -6,6 +6,7 @@ import { REQUIRE_LOGIN_FOR_CHECKOUT, WHATSAPP_NUMBER } from "../../config.js";
 import { dayLabel, fmtMin, getStatus, pickupSlots } from "../../lib/hours.js";
 import { storage } from "../../lib/utils.js";
 import { IconBag, IconClose } from "../icons.jsx";
+import { toppingSummary } from "../builder.js";
 
 function orderCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -59,6 +60,7 @@ export default function CartDrawer() {
       const extra = [];
       if (it.spice) extra.push(t(`spice_${it.spice}`));
       if (it.extra) extra.push(t("extraShort"));
+      if (it.toppings && it.toppings.length) extra.push(`+ ${it.toppings.join(", ")}`);
       lines.push(`• ${it.qty}× ${it.name}${extra.length ? ` (${extra.join(", ")})` : ""} — ${kr(it.unitPrice * it.qty)}`);
     });
     lines.push("");
@@ -95,7 +97,7 @@ export default function CartDrawer() {
       note: note.trim(),
       items: cart.map((l) => {
         const p = findProduct(l.id);
-        return { id: l.id, name: p ? p.name.sv || loc(p.name) : l.id, qty: l.qty, unitPrice: unitPrice(l), spice: l.spice || "", extra: Boolean(l.extra) };
+        return { id: l.id, name: p ? p.name.sv || loc(p.name) : l.id, qty: l.qty, unitPrice: unitPrice(l), spice: l.spice || "", extra: Boolean(l.extra), toppings: toppingSummary(l.toppings, (o) => o.sv || o.en) };
       }),
       subtotal: totals.subtotal,
       discount: totals.discount,
@@ -147,7 +149,7 @@ export default function CartDrawer() {
               const p = findProduct(l.id);
               if (!p) return null;
               const key = lineKey(l);
-              const details = [l.spice ? t(`spice_${l.spice}`) : "", l.extra ? t("extraShort") : ""].filter(Boolean).join(", ");
+              const details = [l.spice ? t(`spice_${l.spice}`) : "", l.extra ? t("extraShort") : "", l.toppings ? `+ ${toppingSummary(l.toppings, loc).join(", ")}` : ""].filter(Boolean).join(", ");
               return (
                 <div className="line" key={key}>
                   <img src={p.image} alt="" loading="lazy" />
