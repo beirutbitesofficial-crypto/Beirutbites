@@ -56,19 +56,6 @@ export const CATEGORIES = [
     }
   },
   {
-    "id": "potato",
-    "icon": "🥔",
-    "name": {
-      "sv": "Bakad potatis",
-      "en": "Baked Potato",
-      "ar": "بطاطا مشوية"
-    },
-    "options": {
-      "spice": true,
-      "extra": true
-    }
-  },
-  {
     "id": "pizza",
     "icon": "🍕",
     "name": {
@@ -295,7 +282,7 @@ export const PRODUCTS = [
   {
     "id": "manakish-mix-ost-kott",
     "category": "manakish",
-    "price": 40,
+    "price": 50,
     "image": "images/mix-ost-och-kott.webp",
     "name": {
       "sv": "Mix Ost & Kött",
@@ -343,7 +330,7 @@ export const PRODUCTS = [
   {
     "id": "manakish-kushik",
     "category": "manakish",
-    "price": 60,
+    "price": 50,
     "image": "images/kushik.webp",
     "name": {
       "sv": "Kushik",
@@ -502,70 +489,6 @@ export const PRODUCTS = [
     }
   },
   {
-    "id": "potato-korv",
-    "category": "potato",
-    "price": 80,
-    "image": "images/potato-med-korv.webp",
-    "name": {
-      "sv": "Potato med Korv",
-      "en": "Baked Potato with Sausage",
-      "ar": "بطاطا مع نقانق"
-    },
-    "description": {
-      "sv": "Bakad potatis med grillad korv & garneringar",
-      "en": "Baked potato with grilled sausage & toppings",
-      "ar": "بطاطا مشوية مع نقانق مشوية وإضافات"
-    }
-  },
-  {
-    "id": "potato-kyckling",
-    "category": "potato",
-    "price": 90,
-    "image": "images/potato-med-kyckling.webp",
-    "name": {
-      "sv": "Potato med Kyckling",
-      "en": "Baked Potato with Chicken",
-      "ar": "بطاطا مع دجاج"
-    },
-    "description": {
-      "sv": "Bakad potatis fylld med marinerad kyckling",
-      "en": "Baked potato stuffed with marinated chicken",
-      "ar": "بطاطا مشوية محشوة بدجاج متبل"
-    }
-  },
-  {
-    "id": "potato-kebab",
-    "category": "potato",
-    "price": 90,
-    "image": "images/potato-med-kebab.webp",
-    "name": {
-      "sv": "Potato med Kebab",
-      "en": "Baked Potato with Kebab",
-      "ar": "بطاطا مع كباب"
-    },
-    "description": {
-      "sv": "Bakad potatis med saftig kebab & sås",
-      "en": "Baked potato with juicy kebab & sauce",
-      "ar": "بطاطا مشوية مع كباب طري وصلصة"
-    }
-  },
-  {
-    "id": "potato-rakor",
-    "category": "potato",
-    "price": 90,
-    "image": "images/potato-med-rakor.webp",
-    "name": {
-      "sv": "Potato med Räkor",
-      "en": "Baked Potato with Shrimp",
-      "ar": "بطاطا مع قريدس"
-    },
-    "description": {
-      "sv": "Bakad potatis med räkor & citronaioli",
-      "en": "Baked potato with shrimp & lemon aioli",
-      "ar": "بطاطا مشوية مع قريدس وأيولي الليمون"
-    }
-  },
-  {
     "id": "pizza-kyckling",
     "category": "pizza",
     "price": 100,
@@ -632,7 +555,7 @@ export const PRODUCTS = [
   {
     "id": "pizza-vegetariana",
     "category": "pizza",
-    "price": 80,
+    "price": 90,
     "image": "images/vegetariana-pizza.webp",
     "name": {
       "sv": "Vegetariana Pizza",
@@ -664,7 +587,7 @@ export const PRODUCTS = [
   {
     "id": "pizza-sujuk",
     "category": "pizza",
-    "price": 120,
+    "price": 100,
     "image": "images/pizza-sujuk.webp",
     "name": {
       "sv": "Pizza Sujuk",
@@ -743,7 +666,7 @@ export const PRODUCTS = [
   }
 ];
 
-export const IMAGES = ["barn-burgare.webp","hamburgare-meny.webp","kebab-baguette.webp","kebab-irakiskt-brod.webp","kebab-pizza.webp","kebab-rulle.webp","kebab-tallrik.webp","kott-ost.webp","kott.webp","kushik.webp","kyckling-baguette.webp","kyckling-irakiskt-brod.webp","kyckling-pizza.webp","kyckling-rulle.webp","kyckling-tallrik.webp","libanesisk-burgare.webp","margherita-pizza.webp","mix-muhammara-och-ost.webp","mix-ost-och-kott.webp","mix-ost-och-zaatar.webp","muhammara.webp","mushroom-burgare.webp","nutella-piroger.webp","nutella.webp","ost.webp","pizza-sujuk.webp","potato-med-kebab.webp","potato-med-korv.webp","potato-med-kyckling.webp","potato-med-rakor.webp","r2a2at.webp","salami-pizza.webp","spenat.webp","sujuk-och-ost.webp","sujuk.webp","tomat-och-ost.webp","vegetariana-pizza.webp","zaatar-och-labneh.webp","zaatar.webp"];
+export const IMAGES = ["barn-burgare.webp","hamburgare-meny.webp","kebab-baguette.webp","kebab-irakiskt-brod.webp","kebab-pizza.webp","kebab-rulle.webp","kebab-tallrik.webp","kott-ost.webp","kott.webp","kushik.webp","kyckling-baguette.webp","kyckling-irakiskt-brod.webp","kyckling-pizza.webp","kyckling-rulle.webp","kyckling-tallrik.webp","libanesisk-burgare.webp","margherita-pizza.webp","mix-muhammara-och-ost.webp","mix-ost-och-kott.webp","mix-ost-och-zaatar.webp","muhammara.webp","mushroom-burgare.webp","nutella-piroger.webp","nutella.webp","ost.webp","pizza-sujuk.webp","r2a2at.webp","salami-pizza.webp","spenat.webp","sujuk-och-ost.webp","sujuk.webp","tomat-och-ost.webp","vegetariana-pizza.webp","zaatar-och-labneh.webp","zaatar.webp"];
 
 export const DEFAULT_SETTINGS = {
   "truckOpen": true,
