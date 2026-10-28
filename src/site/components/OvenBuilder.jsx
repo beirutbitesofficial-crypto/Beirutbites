@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSite } from "../context.js";
 import { IconClose } from "../icons.jsx";
-import { TOPPINGS, baseOf, builderKind, toppingList } from "../builder.js";
+import { TOPPINGS, baseOf, builderKind, isVeggie, toppingList, toppingsPrice, vegPriceFor } from "../builder.js";
 
 const MAX_EACH = 2;
 const FIRE_MS = 2200;
@@ -130,7 +130,7 @@ function Dish({ base, toppings, baked, dropKey }) {
 }
 
 export default function OvenBuilder({ id, onClose }) {
-  const { t, loc, kr, findProduct, extraPrice, addToCart, findCategory } = useSite();
+  const { t, loc, kr, findProduct, extraPrice, vegPrice, addToCart, findCategory } = useSite();
   const p = findProduct(id);
   const kind = builderKind(p);
   const [toppings, setToppings] = useState({});
@@ -148,7 +148,11 @@ export default function OvenBuilder({ id, onClose }) {
   const base = baseOf(p);
   const list = toppingList(kind);
   const count = Object.values(toppings).reduce((s, n) => s + n, 0);
-  const price = Number(p.price) + count * extraPrice;
+  const added = [];
+  Object.keys(toppings).forEach((k) => { for (let i = 0; i < toppings[k]; i++) added.push(k); });
+  const extraCost = toppingsPrice(kind, added, extraPrice, vegPrice);
+  const price = Number(p.price) + extraCost;
+  const chipPrice = (k) => (isVeggie(k) ? vegPriceFor(kind, vegPrice, extraPrice) : extraPrice);
   const accent = loc(findCategory(p.category).name).toLowerCase();
 
   const resetBake = () => { clearTimeout(fireTimer.current); setStage("build"); };
@@ -198,9 +202,7 @@ export default function OvenBuilder({ id, onClose }) {
   };
 
   const confirm = () => {
-    const list2 = [];
-    Object.keys(toppings).forEach((k) => { for (let i = 0; i < toppings[k]; i++) list2.push(k); });
-    addToCart(p.id, { toppings: list2 }, 1);
+    addToCart(p.id, { toppings: added }, 1);
     onClose();
   };
 
@@ -233,7 +235,7 @@ export default function OvenBuilder({ id, onClose }) {
             return (
               <li key={k}>
                 <button type="button" className={`chip-top${n ? " is-on" : ""}`} aria-pressed={n > 0}
-                  aria-label={`${loc(TOPPINGS[k].name)}${n ? ` ×${n}` : ""}, +${kr(extraPrice)}`}
+                  aria-label={`${loc(TOPPINGS[k].name)}${n ? ` ×${n}` : ""}, +${kr(chipPrice(k))}`}
                   onPointerDown={(e) => onPointerDown(e, k)} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                   onPointerCancel={() => setDrag(null)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tap(k); } }}>
@@ -256,7 +258,7 @@ export default function OvenBuilder({ id, onClose }) {
           ) : (
             <button type="button" className="oven-btn" onClick={fire} disabled={stage === "firing"} style={{ "--fire-ms": `${FIRE_MS}ms` }}>
               <span>{stage === "firing" ? t("builderFiringShort") : t("builderFire")}</span>
-              <strong>{count > 0 && <small>+{kr(count * extraPrice)}</small>}{kr(price)}</strong>
+              <strong>{extraCost > 0 && <small>+{kr(extraCost)}</small>}{kr(price)}</strong>
             </button>
           )}
         </div>

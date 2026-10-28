@@ -175,7 +175,7 @@ export default function CartDrawer() {
                   <>
                     <div><span>{t("subtotal")}</span><span>{kr(totals.subtotal)}</span></div>
                     <div className="deal">
-                      <span>{t("dealLine", { qty: activeDeal.qty, name: loc(activeDeal.product.name), price: activeDeal.price })}</span>
+                      <span>{t("dealLine", { qty: activeDeal.qty, name: loc(activeDeal.name), price: activeDeal.price })}</span>
                       <span>−{kr(totals.discount)}</span>
                     </div>
                   </>

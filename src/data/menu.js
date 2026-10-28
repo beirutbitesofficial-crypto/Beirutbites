@@ -710,18 +710,23 @@ export const DEFAULT_SETTINGS = {
       "ar": "عرض اليوم"
     },
     "text": {
-      "sv": "2x Manakish Zaatar för 60 kr — gäller hela dagen!",
-      "en": "2x Manakish Zaatar for 60 kr — all day!",
-      "ar": "2× مناقيش زعتر بـ 60 كرون — طوال اليوم!"
+      "sv": "50 st piroger (mo'ajanat) för 350 kr!",
+      "en": "50 pastries (mo'ajanat) for 350 kr!",
+      "ar": "50 حبة معجنات بـ 350 كرون!"
     }
   },
   "deal": {
     "enabled": true,
-    "productId": "manakish-zaatar",
-    "qty": 2,
-    "price": 60
+    "productId": "",
+    "category": "piroger",
+    "qty": 50,
+    "price": 350
   },
   "extraPrice": 10,
+  "vegPrice": {
+    "manakish": 10,
+    "pizza": 20
+  },
   "stripePaymentLink": "",
   "products": null
 };

@@ -1,5 +1,6 @@
 // Toppings and bases for the "Build your pizza / manakish" screen.
-// Every added topping costs the "extra topping" price set in the admin panel.
+// Every added topping costs the "extra topping" price set in the admin panel,
+// except vegetables: any number of them costs one flat price per dish (settings.vegPrice).
 
 export const TOPPINGS = {
   cheese: { name: { sv: "Ost", en: "Cheese", ar: "جبنة" }, pieces: 34 },
@@ -14,6 +15,24 @@ export const TOPPINGS = {
   cucumber: { name: { sv: "Gurka", en: "Cucumber", ar: "خيار" }, pieces: 7 },
   mint: { name: { sv: "Mynta", en: "Mint", ar: "نعنع" }, pieces: 9 }
 };
+
+export const VEGGIES = ["olives", "mushroom", "peppers", "onion", "tomato", "jalapeno", "cucumber", "mint"];
+
+export const isVeggie = (k) => VEGGIES.includes(k);
+
+// Flat vegetable price for a dish kind; falls back to the extra topping price.
+export function vegPriceFor(kind, vegPrice, extraPrice) {
+  const v = vegPrice && vegPrice[kind];
+  return v === undefined || v === null || v === "" ? extraPrice : Number(v) || 0;
+}
+
+// Price of a line's added toppings, e.g. ["onion","tomato","cheese"] on manakish = 10 + 10.
+export function toppingsPrice(kind, toppings, extraPrice, vegPrice) {
+  const list = toppings || [];
+  const others = list.filter((k) => !isVeggie(k)).length;
+  const veg = list.some(isVeggie) ? vegPriceFor(kind, vegPrice, extraPrice) : 0;
+  return others * extraPrice + veg;
+}
 
 const LISTS = {
   pizza: ["cheese", "olives", "mushroom", "peppers", "onion", "tomato", "sujuk", "jalapeno"],

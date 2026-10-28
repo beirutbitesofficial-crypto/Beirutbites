@@ -22,7 +22,7 @@ import Footer from "./components/Footer.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
 import ProductSheet from "./components/ProductSheet.jsx";
 import OvenBuilder from "./components/OvenBuilder.jsx";
-import { builderKind } from "./builder.js";
+import { builderKind, toppingsPrice } from "./builder.js";
 import AuthModal from "./components/AuthModal.jsx";
 
 function detectLanguage() {
@@ -103,31 +103,49 @@ export default function App() {
     };
   }, []);
   const extraPrice = Number(settings.extraPrice) || 0;
+  const vegPrice = settings.vegPrice;
 
+  // A deal is either "N× one dish" (productId) or "N of anything in a category" (category).
   const activeDeal = useMemo(() => {
     const d = settings.deal;
-    if (!d || !d.enabled || !d.productId || !(d.qty > 1)) return null;
+    if (!d || !d.enabled || !(d.qty > 1)) return null;
+    const qty = Number(d.qty), price = Number(d.price);
+    if (d.category) {
+      const c = CATEGORIES.find((x) => x.id === d.category);
+      if (!c || !products.some((p) => p.category === c.id && !p.hidden && !p.soldOut)) return null;
+      return { category: c.id, name: c.name, qty, price, matches: (p) => p.category === c.id };
+    }
     const p = findProduct(d.productId);
     if (!p || p.hidden || p.soldOut) return null;
-    return { product: p, qty: Number(d.qty), price: Number(d.price) };
-  }, [settings.deal, findProduct]);
+    return { product: p, name: p.name, qty, price, matches: (x) => x.id === p.id };
+  }, [settings.deal, products, findProduct]);
 
   const unitPrice = useCallback((l) => {
     const p = findProduct(l.id);
-    return p ? Number(p.price) + ((l.extra ? 1 : 0) + (l.toppings ? l.toppings.length : 0)) * extraPrice : 0;
-  }, [findProduct, extraPrice]);
+    if (!p) return 0;
+    return Number(p.price) + (l.extra ? extraPrice : 0) + toppingsPrice(builderKind(p) || p.category, l.toppings, extraPrice, vegPrice);
+  }, [findProduct, extraPrice, vegPrice]);
 
   const totals = useMemo(() => {
     const subtotal = cartApi.cart.reduce((s, l) => s + unitPrice(l) * l.qty, 0);
     let discount = 0;
     if (activeDeal) {
-      const qty = cartApi.cart.filter((l) => l.id === activeDeal.product.id).reduce((s, l) => s + l.qty, 0);
-      const sets = Math.floor(qty / activeDeal.qty);
-      discount = Math.max(0, (Number(activeDeal.product.price) * activeDeal.qty - activeDeal.price) * sets);
+      // Every full set of deal items (cheapest first) costs the deal price instead.
+      const units = [];
+      cartApi.cart.forEach((l) => {
+        const p = findProduct(l.id);
+        if (p && activeDeal.matches(p)) for (let i = 0; i < l.qty; i++) units.push(Number(p.price));
+      });
+      units.sort((a, b) => a - b);
+      const sets = Math.floor(units.length / activeDeal.qty);
+      for (let i = 0; i < sets; i++) {
+        const normal = units.slice(i * activeDeal.qty, (i + 1) * activeDeal.qty).reduce((s, n) => s + n, 0);
+        discount += Math.max(0, normal - activeDeal.price);
+      }
     }
     const count = cartApi.cart.reduce((s, l) => s + l.qty, 0);
     return { subtotal, discount, total: Math.max(0, subtotal - discount), count };
-  }, [cartApi.cart, unitPrice, activeDeal]);
+  }, [cartApi.cart, unitPrice, activeDeal, findProduct]);
 
   const addToCart = useCallback((id, opts, qty) => {
     const p = findProduct(id);
@@ -150,7 +168,7 @@ export default function App() {
     lang, setLang, t, loc, settings, products, tick, kr,
     customer, firebaseReady,
     cart: cartApi.cart, lineKey: cartApi.lineKey, changeQty: cartApi.change, clearCart: cartApi.clear,
-    totals, activeDeal, unitPrice, extraPrice, findProduct, findCategory, productOptions,
+    totals, activeDeal, unitPrice, extraPrice, vegPrice, findProduct, findCategory, productOptions,
     addToCart, openProduct, showToast, bump,
     openCart: () => setCartOpen(true), closeCart: () => setCartOpen(false), cartOpen,
     openAuth: () => { if (firebaseReady) setAuthOpen(true); }, closeAuth: () => setAuthOpen(false)
