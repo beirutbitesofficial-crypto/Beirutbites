@@ -884,3 +884,25 @@ html[dir="rtl"] .oven-btn::before { transform-origin: right; }
   .oven { width: 100%; max-height: 96dvh; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
 }
 @media (max-height: 700px) { .oven__stage { width: min(60vw, 230px); } }
+
+/* ---------- Truck scroll story ---------- */
+.truck-scene {
+  position: relative; overflow: hidden; isolation: isolate;
+  height: calc(100svh - var(--header-h)); min-height: 460px;
+  background: radial-gradient(90% 80% at 50% 60%, #154a31 0%, #0d3121 60%, #092417 100%);
+  color: var(--ivory);
+}
+.truck-scene { --cap-h: clamp(120px, 18vh, 180px); }
+.truck-scene svg { position: absolute; inset: 0 0 auto; width: 100%; height: calc(100% - var(--cap-h) + 40px); }
+.ts-label { font: 500 15px/1 var(--f-body); letter-spacing: .28em; fill: var(--ivory); }
+.ts-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: ts-flicker .5s ease-in-out infinite alternate; }
+.ts-flame--2 { animation-duration: .37s; }
+@keyframes ts-flicker { from { transform: scaleY(.85) skewX(-4deg); } to { transform: scaleY(1.12) skewX(4deg); } }
+.truck-scene__captions { position: absolute; inset: auto 0 0; height: var(--cap-h); padding: 8px var(--gutter) 0; display: grid; align-items: start; pointer-events: none; }
+.truck-scene__captions p {
+  grid-area: 1 / 1; margin: 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px;
+  font: 500 clamp(28px, 4.4vw, 56px)/1.05 var(--f-display); text-shadow: 0 4px 30px rgba(0, 0, 0, .45);
+}
+.truck-scene__captions .btn { pointer-events: auto; font-family: var(--f-body); text-shadow: none; }
+@media (max-width: 720px) { .truck-scene { min-height: 420px; } }
+@media (prefers-reduced-motion: reduce) { .ts-flame { animation: none; } .truck-scene__captions p:not(.is-last) { display: none; } }

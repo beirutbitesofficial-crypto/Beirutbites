@@ -7,6 +7,7 @@ import { fill, kr, storage } from "../lib/utils.js";
 import { firebaseReady } from "../firebase.js";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
+import TruckScene from "./components/TruckScene.jsx";
 import SpecialBanner from "./components/SpecialBanner.jsx";
 import Menu from "./components/Menu.jsx";
 import Marquee from "./components/Marquee.jsx";
@@ -182,6 +183,7 @@ export default function App() {
       <Header />
       <main>
         <Hero />
+        <TruckScene />
         <Marquee onPick={setActiveCat} />
         <Collections onPick={setActiveCat} />
         <SpecialBanner />
