@@ -719,6 +719,7 @@ export const DEFAULT_SETTINGS = {
     "enabled": true,
     "productId": "",
     "category": "piroger",
+    "exclude": ["pirog-r2a2at-kebbe"],
     "qty": 50,
     "price": 350
   },

@@ -9,7 +9,10 @@ export default function Offers() {
   const deal = draft.deal || { enabled: false, productId: "", qty: 2, price: 0 };
   const dealProduct = draft.products.find((p) => p.id === deal.productId);
   const dealCat = deal.category && CATEGORIES.find((c) => c.id === deal.category);
-  const catPrices = dealCat ? draft.products.filter((p) => p.category === dealCat.id && !p.hidden).map((p) => Number(p.price)) : [];
+  const exclude = deal.exclude || [];
+  const catProducts = dealCat ? draft.products.filter((p) => p.category === dealCat.id && !p.hidden) : [];
+  const catPrices = catProducts.filter((p) => !exclude.includes(p.id)).map((p) => Number(p.price));
+  const toggleIncluded = (id) => (e) => setDeal({ exclude: e.target.checked ? exclude.filter((x) => x !== id) : [...exclude, id] });
   const dealTarget = dealCat
     ? (catPrices.length ? { name: dealCat.name.sv, unit: Math.min(...catPrices) } : null)
     : dealProduct && { name: dealProduct.name.sv, unit: Number(dealProduct.price) };
@@ -76,6 +79,16 @@ export default function Offers() {
           <label className="field"><span>{t("dealQty")}</span><input type="number" min="2" step="1" inputMode="numeric" value={deal.qty} onChange={(e) => setDeal({ qty: num(e.target.value, 2) })} /></label>
           <label className="field"><span>{t("dealPrice")}</span><input type="number" min="0" step="1" inputMode="numeric" value={deal.price} onChange={(e) => setDeal({ price: num(e.target.value, 0) })} /></label>
         </div>
+        {dealCat && catProducts.length > 0 && (
+          <div className="field">
+            <span>{t("dealIncluded")}</span>
+            <div className="checks">
+              {catProducts.map((p) => (
+                <label className="check" key={p.id}><input type="checkbox" checked={!exclude.includes(p.id)} onChange={toggleIncluded(p.id)} /><span>{p.name.sv} ({p.price} kr)</span></label>
+              ))}
+            </div>
+          </div>
+        )}
         {deal.enabled && dealTarget && (
           <p className="preview">{t("dealPreview", { qty: deal.qty, name: dealTarget.name, price: deal.price, normal: dealTarget.unit * deal.qty })}</p>
         )}

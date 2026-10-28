@@ -112,8 +112,10 @@ export default function App() {
     const qty = Number(d.qty), price = Number(d.price);
     if (d.category) {
       const c = CATEGORIES.find((x) => x.id === d.category);
-      if (!c || !products.some((p) => p.category === c.id && !p.hidden && !p.soldOut)) return null;
-      return { category: c.id, name: c.name, qty, price, matches: (p) => p.category === c.id };
+      const exclude = d.exclude || [];
+      const matches = (p) => p.category === c.id && !exclude.includes(p.id);
+      if (!c || !products.some((p) => matches(p) && !p.hidden && !p.soldOut)) return null;
+      return { category: c.id, name: c.name, qty, price, matches };
     }
     const p = findProduct(d.productId);
     if (!p || p.hidden || p.soldOut) return null;
