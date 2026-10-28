@@ -1,13 +1,14 @@
 import { useSite } from "../context.js";
 
 export default function SpecialBanner() {
-  const { t, loc, settings, activeDeal, addToCart, openCart } = useSite();
+  const { t, loc, settings, activeDeal, addToCart, openCart, openOffer } = useSite();
   const sp = settings.special || {};
   const text = loc(sp.text);
   if (!sp.enabled || !text) return null;
   const onClick = () => {
     if (activeDeal && activeDeal.product) { addToCart(activeDeal.product.id, {}, activeDeal.qty); openCart(); }
-    else (document.getElementById(activeDeal ? `cat-${activeDeal.category}` : "menu") || document.getElementById("menu"))?.scrollIntoView({ behavior: "smooth" });
+    else if (activeDeal) openOffer();
+    else document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
   };
   return (
     <section className="special">
@@ -17,7 +18,7 @@ export default function SpecialBanner() {
           <span>{loc(sp.title) || t("specialEyebrow")}</span>
           <strong>{text}</strong>
         </div>
-        <button className="btn btn--gold btn--sm" type="button" id="specials-cta" onClick={onClick}>{activeDeal && activeDeal.product ? t("specialsCta") : t("heroOrder")}</button>
+        <button className="btn btn--gold btn--sm" type="button" id="specials-cta" onClick={onClick}>{activeDeal ? t(activeDeal.product ? "specialsCta" : "offerCta") : t("heroOrder")}</button>
       </div>
     </section>
   );

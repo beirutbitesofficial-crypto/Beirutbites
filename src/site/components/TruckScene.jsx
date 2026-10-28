@@ -15,6 +15,11 @@ const SPECKS = Array.from({ length: 26 }, (_, i) => {
   const r = Math.sqrt((i + 0.5) / 26);
   return [120 + Math.cos(a) * r * 24, 211 + Math.sin(a) * r * 5, i % 3 === 0 ? 1.3 : 0.9];
 });
+// Turning Torso: nine stacked "cubes", each turned a little further than the one below.
+const TORSO = Array.from({ length: 9 }, (_, i) => {
+  const yb = 478 - i * 30, dx = Math.round(Math.sin(i * 0.7) * 7), s = Math.round(Math.cos(i * 0.7) * 6);
+  return `M${960 + dx} ${yb}h46l${s} -27h-46z`;
+});
 const DASHES = Array.from({ length: 30 }, (_, i) => i * 90);
 const SPOKES = [0, 72, 144, 216, 288];
 // Truck window centre in scene coordinates (truck is drawn at translate(330 150)).
@@ -37,7 +42,7 @@ function Wheel({ x }) {
 }
 
 export default function TruckScene() {
-  const { t } = useSite();
+  const { t, activeDeal, openOffer } = useSite();
   const root = useRef(null);
 
   useEffect(() => {
@@ -76,9 +81,18 @@ export default function TruckScene() {
       // Phones: crop the scene around the truck so it fills the screen.
       const mm = gsap.matchMedia();
       mm.add("(max-width: 720px)", () => {
-        svg.setAttribute("viewBox", "300 20 600 600");
+        const pins = qa("[data-pin]"), arcs = qa("[data-arc]");
+        const keep = { pins: pins.map((g) => g.getAttribute("transform")), arc: arcs[0].getAttribute("d") };
+        svg.setAttribute("viewBox", "160 -150 880 770");
         svg.setAttribute("preserveAspectRatio", "xMidYMax meet");
-        return () => { svg.setAttribute("viewBox", "0 0 1200 600"); svg.setAttribute("preserveAspectRatio", "xMidYMid meet"); };
+        pins[0].setAttribute("transform", "translate(248 60) scale(1.7)");
+        pins[1].setAttribute("transform", "translate(955 60) scale(1.7)");
+        arcs.forEach((a) => a.setAttribute("d", "M280 90Q600 -40 922 90"));
+        return () => {
+          svg.setAttribute("viewBox", "0 0 1200 600"); svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+          pins.forEach((g, i) => g.setAttribute("transform", keep.pins[i]));
+          arcs.forEach((a) => a.setAttribute("d", keep.arc));
+        };
       });
 
       gsap.set(els.truck, { x: -1050 });
@@ -113,7 +127,7 @@ export default function TruckScene() {
       /* 1. Drive in from Beirut to Malmö */
       tl.fromTo(els.truck, { x: PARKED_START }, { x: 0, duration: 3, ease: "power2.out", immediateRender: false }, 0)
         .fromTo(els.wheels, { rotation: 600 }, { rotation: 1680, duration: 3, ease: "power2.out", immediateRender: false }, 0)
-        .to(els.far, { x: -90, duration: 3, ease: "power2.out" }, 0)
+        .to(els.far, { x: -30, duration: 3, ease: "power2.out" }, 0)
         .to(els.dashes, { x: -720, duration: 3, ease: "power2.out" }, 0)
         .to(els.route, { strokeDashoffset: 0, duration: 3, ease: "power1.inOut" }, 0)
         .to(els.headlight, { opacity: 0.25, duration: 0.4 }, 2.8)
@@ -181,9 +195,9 @@ export default function TruckScene() {
         <g data-camera>
           {/* Route: Beirut → Malmö */}
           <g className="ts-route">
-            <path d="M232 112Q600 18 968 112" fill="none" stroke="#f6f1e6" strokeOpacity=".45" strokeWidth="2" strokeDasharray="7 9" />
-            <path data-route d="M232 112Q600 18 968 112" fill="none" stroke="#c29a4b" strokeWidth="3" strokeLinecap="round" pathLength="1" strokeDasharray="1" strokeDashoffset="1" />
-            <g transform="translate(205 92)">
+            <path data-arc d="M232 112Q600 18 968 112" fill="none" stroke="#f6f1e6" strokeOpacity=".45" strokeWidth="2" strokeDasharray="7 9" />
+            <path data-arc data-route d="M232 112Q600 18 968 112" fill="none" stroke="#c29a4b" strokeWidth="3" strokeLinecap="round" pathLength="1" strokeDasharray="1" strokeDashoffset="1" />
+            <g data-pin transform="translate(205 92)">
               <path d="M0 26C-14 12-18 4-18-4a18 18 0 0 1 36 0c0 8-4 16-18 30z" fill="#f6f1e6" />
               <clipPath id="ts-lb"><circle cx="0" cy="-4" r="13" /></clipPath>
               <g clipPath="url(#ts-lb)">
@@ -193,7 +207,7 @@ export default function TruckScene() {
               </g>
               <text x="0" y="-30" textAnchor="middle" className="ts-label">BEIRUT</text>
             </g>
-            <g transform="translate(995 92)">
+            <g data-pin transform="translate(995 92)">
               <path d="M0 26C-14 12-18 4-18-4a18 18 0 0 1 36 0c0 8-4 16-18 30z" fill="#f6f1e6" />
               <clipPath id="ts-se"><circle cx="0" cy="-4" r="13" /></clipPath>
               <g clipPath="url(#ts-se)">
@@ -204,17 +218,22 @@ export default function TruckScene() {
             </g>
           </g>
 
-          {/* Far scenery: Raouché rocks and gulls left, Turning Torso and the bridge right */}
-          <g data-far fill="none" stroke="#f6f1e6" strokeOpacity=".55" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
-            <path d="M40 478c10-40 22-70 40-86 14-12 26-6 32 6 6-16 20-22 30-10 12 14 18 50 22 90" />
-            <path d="M150 478c4-26 12-44 26-52 12-6 22 2 26 14 6 12 8 24 10 38" />
-            <path d="M88 470c8-14 16-18 22-6M30 488h160M60 500h100" strokeOpacity=".35" />
-            <path d="M210 230q8-8 16 0q8-8 16 0M250 200q6-6 12 0q6-6 12 0M180 260q5-5 10 0q5-5 10 0" strokeWidth="1.6" />
-            <path d="M860 478V340M940 478V330M860 352l-60 126M860 352l60 126M940 340l-60 138M940 340l60 138M780 456h260" />
-            <g transform="translate(1060 0)">
-              <path d="M-18 478V250h36v228" />
-              <path d="M-18 290h36M-18 330h36M-18 370h36M-18 410h36M-18 450h36M-10 250l20 40M-18 290l36 40M-18 330l36 40M-18 370l36 40M-18 410l36 40" strokeOpacity=".35" />
-              <path d="M-6 250v-14h12v14" />
+          {/* Far scenery: Raouché (Pigeon Rocks) for Beirut, Turning Torso and the Öresund bridge for Malmö */}
+          <g data-far strokeLinejoin="round" strokeLinecap="round">
+            <g stroke="#f6f1e6" strokeOpacity=".7" strokeWidth="2" fill="#1d5539" fillOpacity=".8">
+              <path fillRule="evenodd" d="M175 478l5-38q4-42 16-68 10-22 26-26 16-4 24 10 12 20 16 54l8 68zM202 478q4-46 20-48 14 2 18 48z" />
+              <path d="M280 478l4-32q6-26 16-28 10 2 14 28l4 32z" />
+            </g>
+            <path d="M150 487q10-5 20 0t20 0M250 487q10-5 20 0t20 0M190 495q10-5 20 0t20 0" fill="none" stroke="#f6f1e6" strokeOpacity=".35" strokeWidth="1.6" />
+            <path d="M210 290q8-8 16 0q8-8 16 0M262 262q6-6 12 0q6-6 12 0M190 318q5-5 10 0q5-5 10 0" fill="none" stroke="#f6f1e6" strokeOpacity=".6" strokeWidth="1.6" />
+            <g stroke="#f6f1e6" strokeOpacity=".75" strokeWidth="2" fill="#1d5539" fillOpacity=".8">
+              {TORSO.map((d, i) => <path key={i} d={d} />)}
+              <path d="M1012 478V214" fill="none" strokeOpacity=".5" />
+              <path d="M1012 450l-6-24M1012 390l-6-24M1012 330l-6-24M1012 270l-6-24" fill="none" strokeOpacity=".5" strokeWidth="1.4" />
+            </g>
+            <g fill="none" stroke="#f6f1e6" strokeOpacity=".5" strokeWidth="2">
+              <path d="M1040 446h170M1085 478V352M1165 478V352" />
+              <path d="M1085 360l-40 86M1085 360l-20 86M1085 360l20 86M1085 360l40 86M1165 360l-40 86M1165 360l-20 86M1165 360l20 86M1165 360l40 86" strokeWidth="1.2" />
             </g>
           </g>
 
@@ -320,7 +339,12 @@ export default function TruckScene() {
         {CAPTIONS.map((k, i) => (
           <p key={k} data-cap className={i === CAPTIONS.length - 1 ? "is-last" : undefined}>
             <span>{t(k)}</span>
-            {i === CAPTIONS.length - 1 && <a href="#menu" className="btn btn--gold">{t("heroOrder")}</a>}
+            {i === CAPTIONS.length - 1 && (
+              <span className="truck-scene__ctas">
+                <a href="#menu" className="btn btn--gold">{t("heroOrder")}</a>
+                {activeDeal && activeDeal.category && <button type="button" className="btn btn--line-light" onClick={openOffer}>{t("offerCta")}</button>}
+              </span>
+            )}
           </p>
         ))}
       </div>

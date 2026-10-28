@@ -20,6 +20,7 @@ import Catering from "./components/Catering.jsx";
 import Contact from "./components/Contact.jsx";
 import Footer from "./components/Footer.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
+import OfferSheet from "./components/OfferSheet.jsx";
 import ProductSheet from "./components/ProductSheet.jsx";
 import OvenBuilder from "./components/OvenBuilder.jsx";
 import { builderKind, toppingsPrice } from "./builder.js";
@@ -44,6 +45,7 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [sheetId, setSheetId] = useState(null);
+  const [offerOpen, setOfferOpen] = useState(false);
   const [builderId, setBuilderId] = useState(null);
   const [toast, setToast] = useState({ msg: "", show: false });
   const toastTimer = useRef(null);
@@ -171,7 +173,7 @@ export default function App() {
     customer, firebaseReady,
     cart: cartApi.cart, lineKey: cartApi.lineKey, changeQty: cartApi.change, clearCart: cartApi.clear,
     totals, activeDeal, unitPrice, extraPrice, vegPrice, findProduct, findCategory, productOptions,
-    addToCart, openProduct, showToast, bump,
+    addToCart, openProduct, showToast, bump, openOffer: () => setOfferOpen(true),
     openCart: () => setCartOpen(true), closeCart: () => setCartOpen(false), cartOpen,
     openAuth: () => { if (firebaseReady) setAuthOpen(true); }, closeAuth: () => setAuthOpen(false)
   };
@@ -203,6 +205,7 @@ export default function App() {
       )}
 
       <CartDrawer />
+      {offerOpen && <OfferSheet onClose={() => setOfferOpen(false)} />}
       {sheetId && <ProductSheet id={sheetId} onClose={() => setSheetId(null)} />}
       {builderId && <OvenBuilder id={builderId} onClose={() => setBuilderId(null)} />}
       {authOpen && <AuthModal />}
