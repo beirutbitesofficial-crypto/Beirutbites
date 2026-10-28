@@ -3,6 +3,15 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Embers from "./embers.js";
 
+// Light parallax on images and the story mark further down the page.
+function parallax() {
+  gsap.utils.toArray("[data-parallax]").forEach((m) => {
+    gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: "none", scrollTrigger: { trigger: m.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
+  });
+  const mark = document.querySelector("[data-story-mark]");
+  if (mark) gsap.fromTo(mark, { yPercent: 18 }, { yPercent: -18, ease: "none", scrollTrigger: { trigger: mark.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
+}
+
 // Cinematic hero: the arch opens, the manakish rises out of the dark and comes into focus,
 // herbs scatter, embers start to swirl and steam rises. On scroll the dish is pinned and
 // pulled to the centre (desktop) or gets a light parallax (phones).
@@ -12,8 +21,13 @@ export function useHeroMotion() {
     const done = () => { root.classList.remove("cine-pending"); root.classList.add("motion-ready"); };
     const hero = document.querySelector("[data-hero]");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!hero || reduce) { done(); return undefined; }
+    if (reduce) { done(); return undefined; }
     gsap.registerPlugin(ScrollTrigger);
+    if (!hero) {
+      done();
+      const pctx = gsap.context(parallax);
+      return () => pctx.revert();
+    }
 
     const $ = (s) => hero.querySelector(s);
     const $$ = (s) => [...hero.querySelectorAll(s)];
@@ -165,11 +179,7 @@ export function useHeroMotion() {
       });
 
       /* 4. Parallax outside the hero */
-      gsap.utils.toArray("[data-parallax]").forEach((m) => {
-        gsap.fromTo(m, { yPercent: -5 }, { yPercent: 5, ease: "none", scrollTrigger: { trigger: m.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
-      });
-      const mark = document.querySelector("[data-story-mark]");
-      if (mark) gsap.fromTo(mark, { yPercent: 18 }, { yPercent: -18, ease: "none", scrollTrigger: { trigger: mark.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
+      parallax();
 
       embers.resize();
       setLive(true);

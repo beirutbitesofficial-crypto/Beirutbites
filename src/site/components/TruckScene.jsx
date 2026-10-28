@@ -19,6 +19,9 @@ const DASHES = Array.from({ length: 30 }, (_, i) => i * 90);
 const SPOKES = [0, 72, 144, 216, 288];
 // Truck window centre in scene coordinates (truck is drawn at translate(330 150)).
 const WIN = { x: 500, y: 311 };
+// Where the truck waits after its intro drive, before the visitor scrolls
+// (phones show a cropped scene, so it needs to come further in there).
+const parkedStart = () => (window.matchMedia("(max-width: 720px)").matches ? -200 : -480);
 
 function Wheel({ x }) {
   return (
@@ -89,18 +92,27 @@ export default function TruckScene() {
         if (to !== undefined) tl.to(els.caps[i], { opacity: 0, y: -24, duration: 0.3, ease: "power2.in" }, to);
       };
 
+      // The page opens on this scene, so the truck drives partway in by itself on load.
+      const PARKED_START = parkedStart();
+      let intro = gsap.timeline({ delay: 0.3 })
+        .to(els.truck, { x: PARKED_START, duration: 2, ease: "power3.out" }, 0)
+        .to(els.wheels, { rotation: 600, duration: 2, ease: "power3.out" }, 0)
+        .to(els.caps[0], { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.8);
+
       const headerH = () => document.getElementById("topbar")?.offsetHeight || 0;
       const tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: el, start: () => `top top+=${headerH()}`, end: "+=320%",
-          pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: -1
+          pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: -1,
+          // Once scrolling starts, the scroll timeline takes over from the intro.
+          onUpdate: (self) => { if (intro && self.progress > 0) { intro.progress(1).kill(); intro = null; } }
         }
       });
 
       /* 1. Drive in from Beirut to Malmö */
-      tl.to(els.truck, { x: 0, duration: 3, ease: "power2.out" }, 0)
-        .to(els.wheels, { rotation: 1080, duration: 3, ease: "power2.out" }, 0)
+      tl.fromTo(els.truck, { x: PARKED_START }, { x: 0, duration: 3, ease: "power2.out", immediateRender: false }, 0)
+        .fromTo(els.wheels, { rotation: 600 }, { rotation: 1680, duration: 3, ease: "power2.out", immediateRender: false }, 0)
         .to(els.far, { x: -90, duration: 3, ease: "power2.out" }, 0)
         .to(els.dashes, { x: -720, duration: 3, ease: "power2.out" }, 0)
         .to(els.route, { strokeDashoffset: 0, duration: 3, ease: "power1.inOut" }, 0)
@@ -108,7 +120,7 @@ export default function TruckScene() {
         // a little suspension bounce as it stops
         .to(els.body, { y: 4, duration: 0.2, ease: "power1.out" }, 2.85)
         .to(els.body, { y: 0, duration: 0.35, ease: "back.out(3)" }, 3.05);
-      cap(tl, 0, 0.1, 2.9);
+      tl.fromTo(els.caps[0], { opacity: 1, y: 0 }, { opacity: 0, y: -24, duration: 0.3, ease: "power2.in", immediateRender: false }, 2.9);
 
       /* 2. The serving window lifts open, lights on */
       tl.to(els.hatch, { ...open, duration: 1.1, ease: "power2.inOut" }, 3.4)
@@ -144,7 +156,7 @@ export default function TruckScene() {
   }, []);
 
   return (
-    <section className="truck-scene" ref={root} aria-label={t("truckLabel")}>
+    <section id="home" className="truck-scene" ref={root} aria-label={t("truckLabel")}>
       <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id="ts-green" x1="0" y1="0" x2="0" y2="1">

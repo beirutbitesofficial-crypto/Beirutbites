@@ -6,7 +6,6 @@ import { useCart, useCustomer, useMinuteTick, useSettings } from "./hooks.js";
 import { fill, kr, storage } from "../lib/utils.js";
 import { firebaseReady } from "../firebase.js";
 import Header from "./components/Header.jsx";
-import Hero from "./components/Hero.jsx";
 import TruckScene from "./components/TruckScene.jsx";
 import SpecialBanner from "./components/SpecialBanner.jsx";
 import Menu from "./components/Menu.jsx";
@@ -182,12 +181,11 @@ export default function App() {
       <a className="skip-link" href="#menu">{t("skipToMenu")}</a>
       <Header />
       <main>
-        <Hero />
         <TruckScene />
+        <Menu active={activeCat} setActive={setActiveCat} />
+        <SpecialBanner />
         <Marquee onPick={setActiveCat} />
         <Collections onPick={setActiveCat} />
-        <SpecialBanner />
-        <Menu active={activeCat} setActive={setActiveCat} />
         <Story />
         <Reviews />
         <Catering />
