@@ -1,7 +1,7 @@
 /* Beirut Bites service worker.
  * Pages and scripts: network first (updates show up right away), cache only as offline fallback.
  * Images: cache first (they rarely change). */
-const CACHE = "beirutbites-react-v1";
+const CACHE = "beirutbites-react-v2";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {
