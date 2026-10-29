@@ -113,6 +113,16 @@ export default function TruckScene() {
         .to(els.wheels, { rotation: 600, duration: 2, ease: "power3.out" }, 0)
         .to(els.caps[0], { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.8);
 
+      // Centre of the part of the scene that is actually on screen, in SVG units. On phones the
+      // viewBox is bottom-aligned in a tall box, so this is not simply the viewBox centre.
+      const small = () => window.matchMedia("(max-width: 720px)").matches;
+      const view = () => {
+        const r = svg.getBoundingClientRect();
+        const pt = svg.createSVGPoint();
+        pt.x = r.left + r.width / 2; pt.y = r.top + r.height / 2;
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+      };
+
       const headerH = () => document.getElementById("topbar")?.offsetHeight || 0;
       const tl = gsap.timeline({
         defaults: { ease: "none" },
@@ -144,7 +154,10 @@ export default function TruckScene() {
       cap(tl, 1, 3.4, 4.7);
 
       /* 3. Camera into the window, dough into the oven */
-      tl.to(els.camera, { scale: 2.6, x: 600 - WIN.x, y: 300 - WIN.y, svgOrigin: `${WIN.x} ${WIN.y}`, duration: 1.4, ease: "power2.inOut" }, 4.6)
+      tl.to(els.camera, {
+        scale: () => (small() ? 3.3 : 2.6), x: () => view().x - WIN.x, y: () => view().y - WIN.y,
+        svgOrigin: `${WIN.x} ${WIN.y}`, duration: 1.4, ease: "power2.inOut"
+      }, 4.6)
         .to(els.peel, { x: 100, y: -4, scale: 0.72, duration: 1, ease: "power1.inOut" }, 6.1)
         .to(els.fire, { opacity: 1, duration: 0.6 }, 6.5);
       cap(tl, 2, 5.6, 6.9);
